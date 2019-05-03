@@ -1,4 +1,4 @@
-package com.yatao.jpa.serviceTest;
+package com.yatao.mybaties.serviceTest;
 
 
 import com.yatao.jpa.SpringbootJpaApplication;
