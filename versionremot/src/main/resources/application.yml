@@ -70,17 +70,3 @@ druid:
   deny: ""
   #exclusions值不能以*开头
   exclusions: /druid/*,*.js,*.css
-
-#shiro 加密配置
-shiro:
-  hash-algorithm: 123
-  hash-iteration: 123
-
-#加密解密配置
-jasypt:
-  encryptor:
-    #密钥
-    password: shiro@jasypt
-    property:
-      prefix: "ENC@["
-      suffix: "]"

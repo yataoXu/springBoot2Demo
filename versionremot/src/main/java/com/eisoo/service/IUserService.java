@@ -10,9 +10,11 @@ public interface IUserService {
 
     /**
      * 根据用户名获取用户
-     * @param username
+     * @param userName
      * @return
      */
-    User findUserByUsername(String username);
+    User checkExistByUserName(String userName);
 
+
+    void checkLoginPassword(String inputPassword, String password);
 }

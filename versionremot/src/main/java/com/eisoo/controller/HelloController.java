@@ -18,20 +18,4 @@ public class HelloController {
         return "index";
     }
 
-    @RequestMapping("/login")
-    public String login(HttpServletRequest request, Map<String, Object> map) throws Exception {
-
-        LOGGER.info("HelloController.login");
-        Object exception = request.getAttribute("shiroLoginFailure");
-        String msg = "";
-        if (exception != null) {
-
-            LOGGER.error("异常:{}", exception);
-            msg = exception.toString();
-        }
-
-        map.put("msg", msg);
-        // 此方法不处理登录成功,由shiro进行处理.
-        return "login";
-    }
 }

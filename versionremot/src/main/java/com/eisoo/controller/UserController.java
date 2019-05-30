@@ -2,7 +2,6 @@ package com.eisoo.controller;
 
 import com.eisoo.model.User;
 import com.eisoo.service.IUserService;
-import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,7 +23,7 @@ public class UserController {
     @ResponseBody
     public User findUserByUsername(String username) {
         LOGGER.info("username = {}", username);
-        User user = userService.findUserByUsername(username);
+        User user = userService.checkExistByUserName(username);
         return user;
     }
 
@@ -35,7 +34,6 @@ public class UserController {
      * @return
      */
     @RequestMapping("/userAdd")
-    @RequiresPermissions("user:add")//权限管理;
     public String userAdd() {
         return "user/userAdd";
     }
@@ -46,7 +44,6 @@ public class UserController {
      * @return
      */
     @RequestMapping("/userDel")
-    @RequiresPermissions("user:del")//权限管理;
     public String userDel() {
         return "user/userDel";
     }

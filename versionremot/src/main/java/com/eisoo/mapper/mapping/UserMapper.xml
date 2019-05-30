@@ -4,20 +4,19 @@
 
     <!-- 通用查询映射结果 -->
     <resultMap id="BaseResultMap" type="com.eisoo.model.User">
-        <id column="id;" property="id;"/>
-        <result column="userName" property="userName"/>
+        <id column="id" property="id" jdbcType="DECIMAL"/>
+        <result column="user_name" property="userName"/>
         <result column="password" property="password"/>
-        <result column="salt" property="salt"/>
-        <result column="state" property="state"/>
-        <result column="description" property="description"/>
+        <result column="api_key" property="apiKey"/>
+
     </resultMap>
 
-    <select id="findUserByUsername" resultMap="BaseResultMap">
+    <select id="selectByUserName" resultMap="BaseResultMap">
         SELECT
-            id,username,password,salt,state,description
+            *
         FROM
-            tbl_user
-        WHERE username=#{username}
+            es_user
+        WHERE user_name=#{userName}
     </select>
 </mapper>
 
