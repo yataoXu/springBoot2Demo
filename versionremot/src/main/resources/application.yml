@@ -1,0 +1,86 @@
+
+
+###################  spring配置  ###################
+spring:
+  profiles:
+    active: dev
+
+###################  mybatis-plus配置  ###################
+
+#mapper-locations 定义mapping文件，支持通配符，如果有多个用逗号隔开。
+#typeAliasesPackage 定义实体类所在的包名，或者其他能使用别名的类所在的包。
+
+mybatis-plus:
+  mapper-locations: classpath*:com/eisoo/mapper/mapping/*.xml
+  typeAliasesPackage: com.eisoo.model
+  global-config:
+    id-type: 0  # 0:数据库ID自增   1:用户输入id  2:全局唯一id(IdWorker)  3:全局唯一ID(uuid)
+    db-column-underline: false
+    refresh-mapper: true
+  configuration:
+    map-underscore-to-camel-case: true
+    cache-enabled: true #配置的缓存的全局开关
+    lazyLoadingEnabled: true #延时加载的开关
+    multipleResultSetsEnabled: true #开启的话，延时加载一个属性时会加载该对象全部属性，否则按需加载属性
+
+logging:
+  level:
+    org.springframework.web.servlet: ERROR
+server:
+  port: 8881
+
+---
+
+#####################################################################
+########################  开发环境profile  ##########################
+#####################################################################
+spring:
+  profiles: dev
+  datasource:
+    url: jdbc:mysql://192.168.37.69:3306/evandb?serverTimezone=UTC&useSSL=false&autoReconnect=true&tinyInt1isBit=false&useUnicode=true&characterEncoding=utf8&serverTimezone=UTC
+    username: zhangkun
+    password: Qwe123!@#
+
+  #redis配置
+  redis:
+    database: 0
+    host: 127.0.0.1
+    port: 6379
+    lettuce:
+      pool:
+        max-active: 8
+        max-wait: -1ms
+        max-idle: 8
+        min-idle: 0
+    timeout: 5000ms
+    expireTime: 180
+
+#druid监控配置
+druid:
+  user-mapping: /druid/*
+  # 禁用HTML页面上的“Rest All”功能
+  reset-enable: false
+  # ip白名单（没有配置或者为空，则允许所有访问）
+  allow: ""
+  # 监控页面登录用户名
+  login-username: root
+  # 监控页面登录用户密码
+  login-password: root
+  #ip黑名单, 如果某个ip同时存在，deny优先于allow
+  deny: ""
+  #exclusions值不能以*开头
+  exclusions: /druid/*,*.js,*.css
+
+#shiro 加密配置
+shiro:
+  hash-algorithm: 123
+  hash-iteration: 123
+
+#加密解密配置
+jasypt:
+  encryptor:
+    #密钥
+    password: shiro@jasypt
+    property:
+      prefix: "ENC@["
+      suffix: "]"
