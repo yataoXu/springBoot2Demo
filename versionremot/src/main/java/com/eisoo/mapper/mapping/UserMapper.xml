@@ -8,7 +8,6 @@
         <result column="user_name" property="userName"/>
         <result column="password" property="password"/>
         <result column="api_key" property="apiKey"/>
-
     </resultMap>
 
     <select id="selectByUserName" resultMap="BaseResultMap">

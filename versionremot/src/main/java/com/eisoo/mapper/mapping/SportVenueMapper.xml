@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.eisoo.mapper.SportVenueMapper">
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.eisoo.model.SportVenue">
+        <result column="months" property="months"/>
+        <result column="college" property="college"/>
+        <result column="major" property="major"/>
+        <result column="grade" property="grade"/>
+        <result column="venue" property="venue"/>
+        <result column="counts" property="counts"/>
+    </resultMap>
+
+    <resultMap id="venue" type="com.eisoo.DTO.venueDTO">
+        <result column="venue" property="venue"/>
+        <result column="nums" property="nums"/>
+    </resultMap>
+
+    <select id="queryHotVenue" resultMap="BaseResultMap">
+        select venue, sum(counts) nums from es_sport_venue
+        <where>
+
+        </where>
+        where months='2018-12'
+        group by venue order by nums desc limit 10
+    </select>
+</mapper>
+
