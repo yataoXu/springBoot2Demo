@@ -1,22 +1,25 @@
 package com.eisoo.controller;
 
+
 import com.alibaba.fastjson.JSON;
 import com.eisoo.DTO.BaseSearchDTO;
 import com.eisoo.DTO.ResultDTO;
-import com.eisoo.DTO.venueDTO;
+
+import com.eisoo.model.VenueDTO;
 import com.eisoo.common.core.exception.BusinessException;
 
 import com.eisoo.common.util.ESDateUtils;
 import com.eisoo.common.util.ValidatorUtils;
 import com.eisoo.model.MonthRange;
-import com.eisoo.service.IMonthRangeService;
-import com.eisoo.service.IVenueService;
+import com.eisoo.service.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+
 import java.util.List;
+import java.util.Map;
 
 @Slf4j
 @RestController
@@ -28,6 +31,13 @@ public class StuHologramContrller {
 
     @Autowired
     IVenueService venueService;
+    @Autowired
+    IStudentInfoService studentInfoService;
+    @Autowired
+    ISportPropertionService sportPropertionService;
+
+    @Autowired
+    ISportTrendService sportTrendService;
 
     /**
      * 自主学习
@@ -58,14 +68,18 @@ public class StuHologramContrller {
                 return resultDTO;
             }
 
-            boolean between = ESDateUtils.isBetween(sportMonthRange.getMinMonth(), sportMonthRange.getMaxMonth(), baseSearchDTO.getMonth());
+            boolean between = ESDateUtils.isBetween(sportMonthRange.getMinMonth(), sportMonthRange.getMaxMonth(), baseSearchDTO.getMonths());
             if (!between){
                 resultDTO.setCode(ResultDTO.SUCCESS_CODE);
                 resultDTO.setMsg("暂无数据");
                 return resultDTO;
             }
-            //获取热力图
-            List<venueDTO> venueDTOS = venueService.queryHotVenue(baseSearchDTO);
+
+            Map<String, Object> hotNew = sportTrendService.getHotNew(baseSearchDTO);
+
+            // 热门运动场所
+            List<VenueDTO> venueDTOS = venueService.queryHotVenue(baseSearchDTO);
+            resultDTO.setData(hotNew);
 
 
         } catch (Exception e) {

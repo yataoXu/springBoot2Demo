@@ -8,11 +8,4 @@ import java.util.List;
 
 public interface RoleMapper extends BaseMapper<Role> {
 
-    /**
-     * 根据用户名查找其角色
-     *
-     * @param username
-     * @return
-     */
-    List<Role> findRoleByUsername(@Param("username") String username);
 }

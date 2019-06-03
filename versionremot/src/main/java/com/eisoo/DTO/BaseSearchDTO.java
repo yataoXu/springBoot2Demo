@@ -12,7 +12,7 @@ public class BaseSearchDTO implements Serializable {
 
     @NotEmpty(message="month 不能为空")
     @JSONField(format = "yyyy-MM")
-    private String month;
+    private String months;
     private String college;
     private String major;
     private String grade;

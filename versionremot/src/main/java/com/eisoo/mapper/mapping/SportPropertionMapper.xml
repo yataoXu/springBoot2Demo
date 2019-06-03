@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.eisoo.mapper.SportPropertionMapper">
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.eisoo.model.SportPropertion">
+        <result column="months" property="months" jdbcType="VARCHAR" />
+        <result column="college" property="college" jdbcType="VARCHAR" />
+        <result column="major" property="major" jdbcType="VARCHAR" />
+        <result column="grade" property="grade" jdbcType="VARCHAR" />
+        <result column="counts" property="counts" jdbcType="DECIMAL" />
+    </resultMap>
+
+
+    <select id="getHotSpot" resultMap="BaseResultMap">
+      select sum(counts) from es_sport_propertion
+        <where>
+            <if test="college != null">
+            and months=#{months}
+            </if>
+            <if test="college != null">
+            and  college = #{college}
+            </if>
+            <if test="grade != null">
+            and  grade = #{grade}
+            </if>
+        </where>
+    </select>
+
+</mapper>
+

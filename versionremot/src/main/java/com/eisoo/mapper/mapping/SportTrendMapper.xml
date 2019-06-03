@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.eisoo.mapper.SportTrendMapper">
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.eisoo.model.SportTrend">
+        <result column="days" property="days"/>
+        <result column="college" property="college"/>
+        <result column="major" property="major"/>
+        <result column="grade" property="grade"/>
+        <result column="counts" property="counts"/>
+    </resultMap>
+
+    <resultMap id="BaseMap" type="com.eisoo.model.VenueDTO">
+        <result column="venue" property="venue"/>
+        <result column="nums" property="nums"/>
+    </resultMap>
+
+    <select id="getHotNew" resultType="java.lang.Double">
+    select sum(a.num)/29.0 from (
+      select days, if(sum(counts) /(#{radix}/7) >= 1, 1, 0) num  from es_sport_trend where days like #{months}||'%'
+        <if test="college != null">
+        and  college = #{college}
+        </if>
+        <if test="grade != null">
+        and grade = #{grade}
+        </if>
+       group by days)a
+    </select>
+
+
+    <select id="getDaysOrder" resultType="list">
+        select days from es_sport_trend  where days like #{months}||'%'
+        <if test="college != null">
+        and  college = #{college}
+        </if>
+        <if test="grade != null">
+        and grade = #{grade}
+        </if>
+        order by days
+    </select>
+
+    <select id="getTrend" resultMap="BaseMap">
+        select days, round(sum(#{radix})/10) from es_sport_trend  where days like #{months}||'%'
+        <if test="college != null">
+        and  college = #{college}
+        </if>
+        <if test="grade != null">
+        and grade = #{grade}
+        </if>
+        group by days order by days
+    </select>
+
+
+</mapper>
+

@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.eisoo.mapper.StudentInfoMapper">
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.eisoo.model.StudentInfo">
+        <result column="id" property="id" jdbcType="DECIMAL" />
+        <result column="std_id" property="stdId" jdbcType="DECIMAL" />
+        <result column="name" property="name" jdbcType="VARCHAR" />
+        <result column="major" property="major" jdbcType="VARCHAR" />
+        <result column="college" property="college" jdbcType="VARCHAR" />
+        <result column="grade" property="grade" jdbcType="VARCHAR" />
+        <result column="gender" property="gender" jdbcType="DECIMAL" />
+    </resultMap>
+
+    <select id="getStudentCount" resultType="int">
+        select count(distinct(t2.std_id)) from es_student_info t2
+        <where>
+            <if test="college != null">
+            and t2.college = #{college}
+            </if>
+            <if test="grade != null">
+            and  t2.grade = #{grade}
+            </if>
+        </where>
+    </select>
+
+
+</mapper>
+

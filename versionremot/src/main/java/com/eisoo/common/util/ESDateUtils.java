@@ -1,5 +1,7 @@
 package com.eisoo.common.util;
 
+import cn.hutool.core.date.DateField;
+import cn.hutool.core.date.DateTime;
 import cn.hutool.core.date.DateUtil;
 
 import java.util.Date;
@@ -17,8 +19,7 @@ public class ESDateUtils {
 
         String dateStr = dateRange + "-01";
         Date date = DateUtil.parse(dateStr);
-        if(date.compareTo(startDay) >= 0 &&
-                date.compareTo(endDay) <= 0){
+        if(date.compareTo(DateUtil.beginOfDay(startDay)) >= 0 && date.compareTo(DateUtil.endOfDay(endDay)) <= 0){
             return true;
         }
         return false;
@@ -27,10 +28,13 @@ public class ESDateUtils {
     public static void main(String[] args) {
         Date date1 = DateUtil.parseDate("2018-12-01");
         Date date2 = DateUtil.parseDate("2019-03-01");
-        String dateRange = "2018-11";
+        String dateRange = "2018-12";
         boolean sameDay = isBetween(date1, date2, dateRange);
         System.out.println(sameDay);
 
+        DateTime parse = DateUtil.parse(dateRange + "-01").offset(DateField.MONTH, -1);
+        System.out.println(parse);
+        System.out.println(parse.monthStartFromOne());
 
     }
 }

@@ -1,7 +1,7 @@
 package com.eisoo.service.impl;
 
 import com.eisoo.DTO.BaseSearchDTO;
-import com.eisoo.DTO.venueDTO;
+import com.eisoo.model.VenueDTO;
 import com.eisoo.mapper.SportVenueMapper;
 import com.eisoo.service.IVenueService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,8 +16,8 @@ public class VenueServiceImpl implements IVenueService {
     private SportVenueMapper sportVenueMapper;
 
     @Override
-    public List<venueDTO> queryHotVenue(BaseSearchDTO searchDTO) {
-        List<venueDTO> venueDTOS = sportVenueMapper.queryHotVenue(searchDTO);
+    public List<VenueDTO> queryHotVenue(BaseSearchDTO searchDTO) {
+        List<VenueDTO> venueDTOS = sportVenueMapper.queryHotVenue(searchDTO);
         return venueDTOS;
     }
 }
