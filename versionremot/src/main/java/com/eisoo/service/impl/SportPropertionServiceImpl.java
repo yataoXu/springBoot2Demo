@@ -16,6 +16,6 @@ public class SportPropertionServiceImpl implements ISportPropertionService {
     public Integer getHotSpot(BaseSearchDTO baseSearchDTO) {
 
 
-        return sportPropertionMapper.getHotSpot(baseSearchDTO);
+        return sportPropertionMapper.getHotSpot(baseSearchDTO.getMonths(),baseSearchDTO.getCollege(),baseSearchDTO.getGrade());
     }
 }

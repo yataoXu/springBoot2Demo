@@ -3,28 +3,23 @@
 <mapper namespace="com.eisoo.mapper.SportPropertionMapper">
     <!-- 通用查询映射结果 -->
     <resultMap id="BaseResultMap" type="com.eisoo.model.SportPropertion">
-        <result column="months" property="months" jdbcType="VARCHAR" />
-        <result column="college" property="college" jdbcType="VARCHAR" />
-        <result column="major" property="major" jdbcType="VARCHAR" />
-        <result column="grade" property="grade" jdbcType="VARCHAR" />
-        <result column="counts" property="counts" jdbcType="DECIMAL" />
+        <result column="months" property="months" jdbcType="VARCHAR"/>
+        <result column="college" property="college" jdbcType="VARCHAR"/>
+        <result column="major" property="major" jdbcType="VARCHAR"/>
+        <result column="grade" property="grade" jdbcType="VARCHAR"/>
+        <result column="counts" property="counts" jdbcType="DECIMAL"/>
     </resultMap>
 
 
-    <select id="getHotSpot" resultMap="BaseResultMap">
-      select sum(counts) from es_sport_propertion
-        <where>
-            <if test="college != null">
-            and months=#{months}
-            </if>
-            <if test="college != null">
-            and  college = #{college}
-            </if>
-            <if test="grade != null">
-            and  grade = #{grade}
-            </if>
-        </where>
-    </select>
+    <select id="getHotSpot" resultType="int">
+        select sum(counts) from es_sport_propertion where months=#{months}
+        <if test="college != null">
+            and college = #{college}
+        </if>
+        <if test="grade != null">
+            and grade = #{grade}
+        </if>
+</select>
 
-</mapper>
+        </mapper>
 

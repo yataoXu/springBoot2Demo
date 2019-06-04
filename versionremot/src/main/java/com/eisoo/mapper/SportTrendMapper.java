@@ -1,17 +1,18 @@
 package com.eisoo.mapper;
 
-import com.eisoo.model.VenueDTO;
+import com.eisoo.model.ValueDTO;
+import org.apache.ibatis.annotations.Param;
 
 import java.math.BigDecimal;
 import java.util.List;
 
 public interface SportTrendMapper {
 
-    Double getHotNew(int radix, String months, String college, String grade);
+    Double getHotNew(@Param("radix")double radix,@Param("months")String months, @Param("college")String college, @Param("grade")String grade);
 
-    List<String> getDaysOrder(String months, String college, String grade);
+    List<String> getDaysOrder(@Param("months")String months, @Param("college")String college, @Param("grade")String grade);
 
-    List<VenueDTO> getTrend(double radix, String months, String college, String grade);
+    List<ValueDTO> getTrend(@Param("radix")double radix,@Param("months")String months, @Param("college")String college, @Param("grade")String grade);
 
 
 

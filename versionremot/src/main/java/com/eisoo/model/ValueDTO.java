@@ -5,7 +5,7 @@ import lombok.Data;
 import java.io.Serializable;
 
 @Data
-public class VenueDTO implements Serializable {
-    private String venue;
+public class ValueDTO implements Serializable {
+    private String key;
     private int nums;
 }

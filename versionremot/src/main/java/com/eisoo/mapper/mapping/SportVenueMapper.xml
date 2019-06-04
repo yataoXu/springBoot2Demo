@@ -11,8 +11,8 @@
         <result column="counts" property="counts"/>
     </resultMap>
 
-    <resultMap id="venue" type="com.eisoo.model.VenueDTO">
-        <result column="venue" property="venue"/>
+    <resultMap id="venue" type="com.eisoo.model.ValueDTO">
+        <result column="venue" property="key"/>
         <result column="nums" property="nums"/>
     </resultMap>
 

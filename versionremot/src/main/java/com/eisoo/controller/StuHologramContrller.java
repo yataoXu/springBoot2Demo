@@ -5,7 +5,7 @@ import com.alibaba.fastjson.JSON;
 import com.eisoo.DTO.BaseSearchDTO;
 import com.eisoo.DTO.ResultDTO;
 
-import com.eisoo.model.VenueDTO;
+import com.eisoo.model.ValueDTO;
 import com.eisoo.common.core.exception.BusinessException;
 
 import com.eisoo.common.util.ESDateUtils;
@@ -78,7 +78,7 @@ public class StuHologramContrller {
             Map<String, Object> hotNew = sportTrendService.getHotNew(baseSearchDTO);
 
             // 热门运动场所
-            List<VenueDTO> venueDTOS = venueService.queryHotVenue(baseSearchDTO);
+            List<ValueDTO> venueDTOS = venueService.queryHotVenue(baseSearchDTO);
             resultDTO.setData(hotNew);
 
 
