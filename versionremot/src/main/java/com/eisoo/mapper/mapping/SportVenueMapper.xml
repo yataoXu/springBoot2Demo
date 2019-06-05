@@ -16,19 +16,15 @@
         <result column="nums" property="nums"/>
     </resultMap>
 
-    <select id="queryHotVenue" resultMap="BaseResultMap">
-        select venue, sum(counts) nums from es_sport_venue
-        <where>
-            <if test="college != null">
-            and months = #{months}
-            </if>
+    <select id="queryHotVenue" resultMap="venue">
+        select venue, sum(counts) nums from es_sport_venue where months = #{months}
+
             <if test="college != null">
             and  college = #{college}
             </if>
             <if test="grade != null">
             and grade = #{grade}
             </if>
-        </where>
         group by venue order by nums desc limit 10
     </select>
 

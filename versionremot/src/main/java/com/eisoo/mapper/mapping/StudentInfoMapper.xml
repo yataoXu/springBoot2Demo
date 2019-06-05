@@ -3,25 +3,51 @@
 <mapper namespace="com.eisoo.mapper.StudentInfoMapper">
     <!-- 通用查询映射结果 -->
     <resultMap id="BaseResultMap" type="com.eisoo.model.StudentInfo">
-        <result column="id" property="id" jdbcType="DECIMAL" />
-        <result column="std_id" property="stdId" jdbcType="DECIMAL" />
-        <result column="name" property="name" jdbcType="VARCHAR" />
-        <result column="major" property="major" jdbcType="VARCHAR" />
-        <result column="college" property="college" jdbcType="VARCHAR" />
-        <result column="grade" property="grade" jdbcType="VARCHAR" />
-        <result column="gender" property="gender" jdbcType="DECIMAL" />
+        <result column="id" property="id" jdbcType="DECIMAL"/>
+        <result column="std_id" property="stdId" jdbcType="DECIMAL"/>
+        <result column="name" property="name" jdbcType="VARCHAR"/>
+        <result column="major" property="major" jdbcType="VARCHAR"/>
+        <result column="college" property="college" jdbcType="VARCHAR"/>
+        <result column="grade" property="grade" jdbcType="VARCHAR"/>
+        <result column="gender" property="gender" jdbcType="DECIMAL"/>
     </resultMap>
+
+    <resultMap id="venue" type="com.eisoo.model.ValueDTO">
+        <result column="college" property="key"/>
+        <result column="nums" property="nums"/>
+    </resultMap>
+
 
     <select id="getStudentCount" resultType="int">
         select count(distinct(t2.std_id)) from es_student_info t2
         <where>
             <if test="college != null">
-            and t2.college = #{college}
+                and t2.college = #{college}
             </if>
             <if test="grade != null">
-            and  t2.grade = #{grade}
+                and t2.grade = #{grade}
             </if>
         </where>
+    </select>
+
+    <select id="getCollege" resultMap="venue">
+        select college , count(std_id) nums from es_student_info
+        <where>
+            <if test="grade != null">
+                and grade = #{grade}
+            </if>
+        </where>
+        group by college
+    </select>
+
+    <select id="getGrade" resultMap="venue">
+        select college , count(std_id) nums from es_student_info
+        <where>
+            <if test="grade != null">
+                and grade = #{grade}
+            </if>
+        </where>
+        group by grade
     </select>
 
 

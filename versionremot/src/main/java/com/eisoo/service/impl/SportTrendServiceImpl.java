@@ -5,14 +5,17 @@ import cn.hutool.core.date.DateTime;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.map.MapUtil;
 import com.eisoo.DTO.BaseSearchDTO;
+import com.eisoo.common.constant.state.ESConstants;
 import com.eisoo.model.ValueDTO;
 import com.eisoo.mapper.SportPropertionMapper;
 import com.eisoo.mapper.SportTrendMapper;
 import com.eisoo.mapper.StudentInfoMapper;
 import com.eisoo.service.ISportTrendService;
+import com.eisoo.service.IVenueService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -21,8 +24,9 @@ import java.util.Map;
 public class SportTrendServiceImpl implements ISportTrendService {
 
     @Autowired
+    IVenueService venueService;
+    @Autowired
     SportTrendMapper sportTrendMapper;
-
     @Autowired
     private SportPropertionMapper sportPropertionMapper;
     @Autowired
@@ -47,7 +51,6 @@ public class SportTrendServiceImpl implements ISportTrendService {
         int radix = studentInfoMapper.getStudentCount(baseSearchDTO);
         Double hotNew = sportTrendMapper.getHotNew(radix, baseSearchDTO.getMonths(), baseSearchDTO.getCollege(), baseSearchDTO.getGrade());
 
-
         String hotRadix= "低";
         if (hotNew >= 0.7) {
             hotRadix = "高";
@@ -57,8 +60,19 @@ public class SportTrendServiceImpl implements ISportTrendService {
             hotRadix = "低";
         }
 
+        // 热门运动场所
+        List<ValueDTO> hotVenue = venueService.queryHotVenue(baseSearchDTO);
+
         List<String> daysOrder = sportTrendMapper.getDaysOrder(baseSearchDTO.getMonths(), baseSearchDTO.getCollege(), baseSearchDTO.getGrade());
+
+
+        // 趋势图
         List<ValueDTO> trend = sportTrendMapper.getTrend(radix / 3.5, baseSearchDTO.getMonths(), baseSearchDTO.getCollege(), baseSearchDTO.getGrade());
+
+        List<String> venueList = new ArrayList<>();
+        for (ESConstants.Venue venue : ESConstants.Venue.values()){
+            venueList.add(venue.getDescr());
+        }
 
         map.put("recent",recent);
         map.put("lastTwo",lastTwo);
@@ -66,6 +80,8 @@ public class SportTrendServiceImpl implements ISportTrendService {
         map.put("hot",hotRadix);
         map.put("daysOrder",daysOrder);
         map.put("trend",trend);
+        map.put("venue",hotVenue);
+        map.put("venue",venueList);
         return map;
     }
 }

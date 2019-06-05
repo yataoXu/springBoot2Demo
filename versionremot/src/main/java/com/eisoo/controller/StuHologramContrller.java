@@ -5,6 +5,7 @@ import com.alibaba.fastjson.JSON;
 import com.eisoo.DTO.BaseSearchDTO;
 import com.eisoo.DTO.ResultDTO;
 
+import com.eisoo.model.SportPortrait;
 import com.eisoo.model.ValueDTO;
 import com.eisoo.common.core.exception.BusinessException;
 
@@ -32,12 +33,13 @@ public class StuHologramContrller {
     @Autowired
     IVenueService venueService;
     @Autowired
-    IStudentInfoService studentInfoService;
-    @Autowired
     ISportPropertionService sportPropertionService;
 
     @Autowired
     ISportTrendService sportTrendService;
+
+    @Autowired
+    IStuHologramService stuHologramService;
 
     /**
      * 自主学习
@@ -62,25 +64,36 @@ public class StuHologramContrller {
         try {
             ValidatorUtils.validate(baseSearchDTO);
             MonthRange sportMonthRange = monthRangeService.getMonthRangeByCat(baseSearchDTO.getCat());
-            if (sportMonthRange == null){
+            if (sportMonthRange == null) {
                 resultDTO.setCode(ResultDTO.ERROR_CODE);
                 resultDTO.setMsg("error");
                 return resultDTO;
             }
 
             boolean between = ESDateUtils.isBetween(sportMonthRange.getMinMonth(), sportMonthRange.getMaxMonth(), baseSearchDTO.getMonths());
-            if (!between){
+            if (!between) {
                 resultDTO.setCode(ResultDTO.SUCCESS_CODE);
                 resultDTO.setMsg("暂无数据");
                 return resultDTO;
             }
 
-            Map<String, Object> hotNew = sportTrendService.getHotNew(baseSearchDTO);
+            if (baseSearchDTO.getPage() == 1) {
+                Map<String, Object> hotNew = sportTrendService.getHotNew(baseSearchDTO);
+                resultDTO.setCode(ResultDTO.SUCCESS_CODE);
+                resultDTO.setData(hotNew);
+            } else {
 
-            // 热门运动场所
-            List<ValueDTO> venueDTOS = venueService.queryHotVenue(baseSearchDTO);
-            resultDTO.setData(hotNew);
+                List<SportPortrait> portrait = stuHologramService.getPortrait(baseSearchDTO);
+                Map<String, Object> college = stuHologramService.getCollege(baseSearchDTO);
+                Map<String, Object> dura = stuHologramService.getDura(baseSearchDTO);
+                if (dura.size() != 0 && dura != null) {
+                    college.putAll(dura);
+                }
+                college.put("portrait",portrait);
+                resultDTO.setCode(ResultDTO.SUCCESS_CODE);
+                resultDTO.setData(college);
 
+            }
 
         } catch (Exception e) {
             resultDTO.setCode(ResultDTO.ERROR_CODE);

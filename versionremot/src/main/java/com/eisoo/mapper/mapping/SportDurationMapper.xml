@@ -1,12 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.eisoo.mapper.SportPropertionMapper">
+<mapper namespace="com.eisoo.mapper.SportDurationMapper">
     <!-- 通用查询映射结果 -->
-    <resultMap id="BaseResultMap" type="com.eisoo.model.SportPropertion">
+    <resultMap id="BaseResultMap" type="com.eisoo.model.SportDuration">
         <result column="months" property="months" jdbcType="VARCHAR"/>
         <result column="college" property="college" jdbcType="VARCHAR"/>
         <result column="major" property="major" jdbcType="VARCHAR"/>
         <result column="grade" property="grade" jdbcType="VARCHAR"/>
+        <result column="duration" property="duration" jdbcType="DECIMAL"/>
         <result column="counts" property="counts" jdbcType="DECIMAL"/>
     </resultMap>
 
@@ -15,9 +16,8 @@
         <result column="nums" property="nums"/>
     </resultMap>
 
-
-    <select id="getHotSpot" resultType="int">
-        select sum(counts) from es_sport_propertion where months=#{months}
+    <select id="getMaxDuration" resultType="int">
+        select max(duration) from es_sport_duration where months = #{months}
         <if test="college != null">
             and college = #{college}
         </if>
@@ -26,21 +26,16 @@
         </if>
     </select>
 
-    <select id="orderCollegeMonth" resultMap="venue">
-        select college as name, sum(counts) nums from es_sport_propertion where months= #{months}
+    <select id="sportDurationTotal" resultMap="venue">
+        select duration as name, round(sum(counts)/10) nums from es_sport_duration where months = #{months}
+        <if test="college != null">
+            and college = #{college}
+        </if>
         <if test="grade != null">
             and grade = #{grade}
         </if>
-        group by college order by college desc
+        group by duration order by name
     </select>
 
-    <select id="orderGradeMonth" resultMap="venue">
-        select grade as name, sum(counts) nums from es_sport_propertion where months= #{months}
-        <if test="grade != null">
-            and grade = #{grade}
-        </if>
-        group by grade order by grade desc
-    </select>
 
 </mapper>
-
