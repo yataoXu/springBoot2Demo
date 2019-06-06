@@ -10,7 +10,7 @@ public interface StudentInfoMapper {
 
     int getStudentCount(BaseSearchDTO baseSearchDTO);
 
-    List<ValueDTO> getCollege(@Param("grade")String grade);
+    List<ValueDTO> groupCollege(@Param("grade")String grade);
 
-    List<ValueDTO> getGrade(@Param("months")String months,@Param("grade")String grade);
+    List<ValueDTO> groupGrade(@Param("college")String college);
 }

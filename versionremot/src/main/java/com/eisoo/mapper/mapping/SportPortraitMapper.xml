@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.eisoo.mapper.SportPortraitMapper">
+
     <!-- 通用查询映射结果 -->
     <resultMap id="BaseResultMap" type="com.eisoo.model.SportPortrait">
         <result column="months" property="months" jdbcType="VARCHAR"/>
@@ -31,7 +32,7 @@
     </resultMap>
 
     <select id="getPortrait" resultMap="BaseResultMap">
-        select #{params} from es_sport_portrait where months=#{months}
+        select * from es_sport_portrait where months=#{months}
         <if test="college != null">
             and college = #{college}
         </if>

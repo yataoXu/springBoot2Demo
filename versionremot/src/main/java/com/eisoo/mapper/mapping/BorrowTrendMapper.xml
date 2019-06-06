@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.eisoo.mapper.BorrowTrendMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.eisoo.model.BorrowTrend">
+        <id column="days" property="days"/>
+        <result column="std_id" property="stdId"/>
+        <result column="books" property="books" />
+    </resultMap>
+
+    <select id="getHotBook" resultType="string">
+        select t1.books from es_borrow_trend t1 inner join es_student_info t2 on t1.std_id=t2.std_id
+         where t1.days like CONCAT(#{months},'%')
+        <if test="college != null">
+            and t2.college = #{college}
+        </if>
+        <if test="grade != null">
+            and t2.grade = #{grade}
+        </if>
+
+    </select>
+
+
+</mapper>
+
+

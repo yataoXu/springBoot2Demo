@@ -46,6 +46,22 @@ public class ESConstants {
         }
         private String portraitEnglish;
         private String portraitChinese;
+
+        public String getPortraitEnglish() {
+            return portraitEnglish;
+        }
+
+        public void setPortraitEnglish(String portraitEnglish) {
+            this.portraitEnglish = portraitEnglish;
+        }
+
+        public String getPortraitChinese() {
+            return portraitChinese;
+        }
+
+        public void setPortraitChinese(String portraitChinese) {
+            this.portraitChinese = portraitChinese;
+        }
     }
 
 }

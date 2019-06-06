@@ -13,7 +13,7 @@
     </resultMap>
 
     <resultMap id="venue" type="com.eisoo.model.ValueDTO">
-        <result column="college" property="key"/>
+        <result column="name" property="key"/>
         <result column="nums" property="nums"/>
     </resultMap>
 
@@ -30,8 +30,8 @@
         </where>
     </select>
 
-    <select id="getCollege" resultMap="venue">
-        select college , count(std_id) nums from es_student_info
+    <select id="groupCollege" resultMap="venue">
+        select college as name, count(std_id) nums from es_student_info
         <where>
             <if test="grade != null">
                 and grade = #{grade}
@@ -40,11 +40,11 @@
         group by college
     </select>
 
-    <select id="getGrade" resultMap="venue">
-        select college , count(std_id) nums from es_student_info
+    <select id="groupGrade" resultMap="venue">
+        select grade as name, count(std_id) nums from es_student_info
         <where>
-            <if test="grade != null">
-                and grade = #{grade}
+            <if test="college != null">
+                and college = #{college}
             </if>
         </where>
         group by grade

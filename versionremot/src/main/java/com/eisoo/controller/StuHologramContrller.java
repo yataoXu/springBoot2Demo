@@ -14,6 +14,7 @@ import com.eisoo.common.util.ValidatorUtils;
 import com.eisoo.model.MonthRange;
 import com.eisoo.service.*;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -21,6 +22,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 
 @Slf4j
 @RestController
@@ -47,8 +49,38 @@ public class StuHologramContrller {
      * @return
      */
     @RequestMapping("/autoStudy")
-    public ResultDTO AutoStudy() {
+    public ResultDTO AutoStudy(BaseSearchDTO baseSearchDTO) {
+
+        log.info("登录参数:" + JSON.toJSONString(baseSearchDTO));
         ResultDTO resultDTO = new ResultDTO();
+
+        if (StringUtils.isBlank(baseSearchDTO.getType())) {
+            resultDTO.setCode(ResultDTO.ERROR_CODE);
+            resultDTO.setMsg("请求参数有误");
+            return resultDTO;
+        }
+        if ("borrow".equals(baseSearchDTO.getType())) {
+            MonthRange sportMonthRange = monthRangeService.getMonthRangeByCat(baseSearchDTO.getCat());
+            if (sportMonthRange == null) {
+                resultDTO.setCode(ResultDTO.ERROR_CODE);
+                resultDTO.setMsg("暂无数据");
+                return resultDTO;
+            }
+
+            List<Map<String, AtomicInteger>> hotBook = stuHologramService.getHotBook(baseSearchDTO);
+            resultDTO.setData(hotBook);
+            if (baseSearchDTO.getPage() ==1){
+
+
+
+            }
+
+
+        }
+        else if("study".equals(baseSearchDTO.getType())){}
+        else if("onlineStudy".equals(baseSearchDTO.getType())){}
+
+
         return resultDTO;
     }
 
@@ -83,13 +115,17 @@ public class StuHologramContrller {
                 resultDTO.setData(hotNew);
             } else {
 
-                List<SportPortrait> portrait = stuHologramService.getPortrait(baseSearchDTO);
+                Map<String,Integer> portrait = stuHologramService.getPortrait(baseSearchDTO);
                 Map<String, Object> college = stuHologramService.getCollege(baseSearchDTO);
+                Map<String, Object> grade = stuHologramService.getGrade(baseSearchDTO);
                 Map<String, Object> dura = stuHologramService.getDura(baseSearchDTO);
+                if (grade.size() != 0 && grade != null) {
+                    college.putAll(grade);
+                }
                 if (dura.size() != 0 && dura != null) {
                     college.putAll(dura);
                 }
-                college.put("portrait",portrait);
+                college.put("student",portrait);
                 resultDTO.setCode(ResultDTO.SUCCESS_CODE);
                 resultDTO.setData(college);
 
