@@ -98,9 +98,9 @@ public class StuHologramContrller {
                     Integer k1 = portrait.get("学科均衡");
                     Integer k2 = portrait.get("学科均衡");
                     if (k1 != null && k2 != null) {
-                        if (k1 / (k1 + k2) >= 7) {
+                        if (k1 / (k1 + k2) >= 0.7) {
                             portrait.remove("学科均衡'");
-                        } else if (k1 / (k1 + k2) < 3) {
+                        } else if (k1 / (k1 + k2) < 0.3) {
                             portrait.remove("'偏科''");
                         }
                     } else {

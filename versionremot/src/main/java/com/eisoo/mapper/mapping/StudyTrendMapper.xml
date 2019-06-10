@@ -17,7 +17,7 @@
         <result column="nums" property="nums"/>
     </resultMap>
 
-    <select id="">
+    <select id="getTrend" resultMap="venue">
         select days as name, round(sum(counts)/10) as nums from table_study_trend
         where days like CONCAT(#{months},'%')
         group by days order by days
