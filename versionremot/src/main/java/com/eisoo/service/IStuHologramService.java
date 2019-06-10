@@ -2,9 +2,9 @@ package com.eisoo.service;
 
 import com.eisoo.DTO.BaseSearchDTO;
 
-import java.util.List;
+import java.math.BigDecimal;
+import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.atomic.AtomicInteger;
 
 public interface IStuHologramService {
 
@@ -16,6 +16,19 @@ public interface IStuHologramService {
 
     public Map<String, Object> getGrade(BaseSearchDTO baseSearchDTO);
 
-    public List<Map<String, AtomicInteger>> getHotBook(BaseSearchDTO baseSearchDTO);
+    public HashMap<String, Map<String, BigDecimal>> getHotBook(BaseSearchDTO baseSearchDTO);
 
+    /**
+     * 年级基数，年级TOP以学院切片
+     * @param baseSearchDTO
+     * @return
+     */
+    public Map<String,Object> groupGradeOrCollegeNOCondition(BaseSearchDTO baseSearchDTO);
+
+    /**
+     * 实际条件下的学院、年级计数
+     * @param baseSearchDTO
+     * @return
+     */
+    public Map<String,Object> groupGradeOrCollegeCondition(BaseSearchDTO baseSearchDTO);
 }

@@ -1,17 +1,18 @@
 package com.eisoo.controller;
 
 
+import cn.hutool.core.date.DateField;
+import cn.hutool.core.date.DateTime;
+import cn.hutool.core.date.DateUtil;
 import com.alibaba.fastjson.JSON;
 import com.eisoo.DTO.BaseSearchDTO;
 import com.eisoo.DTO.ResultDTO;
-
-import com.eisoo.model.SportPortrait;
-import com.eisoo.model.ValueDTO;
 import com.eisoo.common.core.exception.BusinessException;
-
 import com.eisoo.common.util.ESDateUtils;
 import com.eisoo.common.util.ValidatorUtils;
+import com.eisoo.mapper.BorrowTrendMapper;
 import com.eisoo.model.MonthRange;
+import com.eisoo.model.ValueDTO;
 import com.eisoo.service.*;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -19,10 +20,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-
+import java.math.BigDecimal;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.atomic.AtomicInteger;
 
 @Slf4j
 @RestController
@@ -43,6 +44,9 @@ public class StuHologramContrller {
     @Autowired
     IStuHologramService stuHologramService;
 
+    @Autowired
+    BorrowTrendMapper borrowTrendMapper;
+
     /**
      * 自主学习
      *
@@ -53,34 +57,80 @@ public class StuHologramContrller {
 
         log.info("登录参数:" + JSON.toJSONString(baseSearchDTO));
         ResultDTO resultDTO = new ResultDTO();
+        Map<String, Object> map = new HashMap<>();
 
         if (StringUtils.isBlank(baseSearchDTO.getType())) {
             resultDTO.setCode(ResultDTO.ERROR_CODE);
             resultDTO.setMsg("请求参数有误");
             return resultDTO;
         }
-        if ("borrow".equals(baseSearchDTO.getType())) {
-            MonthRange sportMonthRange = monthRangeService.getMonthRangeByCat(baseSearchDTO.getCat());
-            if (sportMonthRange == null) {
-                resultDTO.setCode(ResultDTO.ERROR_CODE);
-                resultDTO.setMsg("暂无数据");
-                return resultDTO;
-            }
 
-            List<Map<String, AtomicInteger>> hotBook = stuHologramService.getHotBook(baseSearchDTO);
-            resultDTO.setData(hotBook);
-            if (baseSearchDTO.getPage() ==1){
-
-
-
-            }
-
-
+        MonthRange monthRange = monthRangeService.getMonthRangeByCat(baseSearchDTO.getCat());
+        if (monthRange == null) {
+            resultDTO.setCode(ResultDTO.ERROR_CODE);
+            resultDTO.setMsg("暂无数据");
+            return resultDTO;
         }
-        else if("study".equals(baseSearchDTO.getType())){}
-        else if("onlineStudy".equals(baseSearchDTO.getType())){}
+
+        if ("borrow".equals(baseSearchDTO.getType())) {
+
+            HashMap<String, Map<String, BigDecimal>> hotBook = stuHologramService.getHotBook(baseSearchDTO);
+
+            map.put("hotBook", hotBook);
+            if (baseSearchDTO.getPage() == 1) {
+                List<String> strings = borrowTrendMapper.daysOrder(baseSearchDTO.getMonths(), baseSearchDTO.getCollege(), baseSearchDTO.getGrade());
+
+                String thisMonthHeatMap = borrowTrendMapper.getHeatMap(baseSearchDTO.getMonths(), baseSearchDTO.getCollege(), baseSearchDTO.getGrade());
+                map.put("thisMonthHeatMap", thisMonthHeatMap);
+
+                DateTime parse = DateUtil.parse(baseSearchDTO.getMonths() + "-01").offset(DateField.MONTH, -1);
+                String lastMonthHeatMap = borrowTrendMapper.getHeatMap(parse.year() + "-" + parse.monthStartFromOne(), baseSearchDTO.getCollege(), baseSearchDTO.getGrade());
+                map.put("lastMonthHeatMap", lastMonthHeatMap);
+
+                List<ValueDTO> trend = borrowTrendMapper.getTrend(baseSearchDTO.getMonths(), baseSearchDTO.getCollege(), baseSearchDTO.getGrade());
+                map.put("trend", trend);
+
+            } else {
 
 
+                Map<String, Integer> portrait = stuHologramService.getPortrait(baseSearchDTO);
+                if (portrait.containsKey("学科均衡") && portrait.containsKey("偏科")) {
+                    Integer k1 = portrait.get("学科均衡");
+                    Integer k2 = portrait.get("学科均衡");
+                    if (k1 != null && k2 != null) {
+                        if (k1 / (k1 + k2) >= 7) {
+                            portrait.remove("学科均衡'");
+                        } else if (k1 / (k1 + k2) < 3) {
+                            portrait.remove("'偏科''");
+                        }
+                    } else {
+                        portrait.remove("学科均衡'");
+                        portrait.remove("'偏科''");
+                    }
+                }
+                if (portrait.containsKey("寝室宅")) {
+                    portrait.remove("寝室宅");
+                }
+                HashMap<String, Map<String, Integer>> portraitMap = new HashMap<String, Map<String, Integer>>();
+                portraitMap.put("student", portrait);
+
+                // 实际条件下的学院、年级计数
+                Map<String, Object> groupGradeOrCollegeCondition = stuHologramService.groupGradeOrCollegeCondition(baseSearchDTO);
+                map.putAll(portraitMap);
+                map.putAll(groupGradeOrCollegeCondition);
+            }
+        } else if ("study".equals(baseSearchDTO.getType())) {
+            if (baseSearchDTO.getPage() == 1) {
+
+            }else{
+
+            }
+
+
+        } else if ("onlineStudy".equals(baseSearchDTO.getType())) {
+        }
+
+        resultDTO.setData(map);
         return resultDTO;
     }
 
@@ -115,7 +165,7 @@ public class StuHologramContrller {
                 resultDTO.setData(hotNew);
             } else {
 
-                Map<String,Integer> portrait = stuHologramService.getPortrait(baseSearchDTO);
+                Map<String, Integer> portrait = stuHologramService.getPortrait(baseSearchDTO);
                 Map<String, Object> college = stuHologramService.getCollege(baseSearchDTO);
                 Map<String, Object> grade = stuHologramService.getGrade(baseSearchDTO);
                 Map<String, Object> dura = stuHologramService.getDura(baseSearchDTO);
@@ -125,7 +175,7 @@ public class StuHologramContrller {
                 if (dura.size() != 0 && dura != null) {
                     college.putAll(dura);
                 }
-                college.put("student",portrait);
+                college.put("student", portrait);
                 resultDTO.setCode(ResultDTO.SUCCESS_CODE);
                 resultDTO.setData(college);
 

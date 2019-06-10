@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.eisoo.mapper.BorrowPropertionMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.eisoo.model.BorrowPropertion">
+        <id column="months" property="months"/>
+        <result column="college" property="college"/>
+        <result column="grade" property="grade"/>
+        <result column="major" property="major"/>
+        <result column="counts" property="counts"/>
+    </resultMap>
+
+    <resultMap id="venue" type="com.eisoo.model.ValueDTO">
+        <result column="name" property="key"/>
+        <result column="nums" property="nums"/>
+    </resultMap>
+
+    <select id="groupCollege" resultMap="venue">
+        select college name, sum(counts) nums from es_borrow_propertion
+        where months = #{months}
+        <if test="grade != null">
+            and grade = #{grade}
+        </if>
+        group by college order by nums desc
+    </select>
+
+    <select id="groupGrade" resultMap="venue">
+        select grade name, sum(counts) nums from es_borrow_propertion
+        where months = #{months}
+        <if test="college != null">
+            and college = #{college}
+        </if>
+        group by grade order by grade desc
+
+    </select>
+
+</mapper>

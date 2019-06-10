@@ -8,11 +8,15 @@ import com.eisoo.model.SportPortrait;
 import com.eisoo.model.ValueDTO;
 import com.eisoo.service.IStuHologramService;
 import com.google.common.collect.Maps;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
 
 @Service
 public class StuHologramServiceImpl implements IStuHologramService {
@@ -27,6 +31,8 @@ public class StuHologramServiceImpl implements IStuHologramService {
     SportDurationMapper sportDurationMapper;
     @Autowired
     BorrowTrendMapper borrowTrendMapper;
+    @Autowired
+    BorrowPropertionMapper borrowPropertionMapper;
 
 
     /**
@@ -145,14 +151,14 @@ public class StuHologramServiceImpl implements IStuHologramService {
     }
 
 
-    public List<Map<String, AtomicInteger>> getHotBook(BaseSearchDTO baseSearchDTO) {
+    public HashMap<String, Map<String, BigDecimal>> getHotBook(BaseSearchDTO baseSearchDTO) {
 
         List<Map<String, AtomicInteger>> list = new ArrayList<>();
 
         List<String> hotBook = borrowTrendMapper.getHotBook(baseSearchDTO.getMonths(), baseSearchDTO.getCollege(), baseSearchDTO.getGrade());
 
-        Map<String, AtomicInteger> bookNameMap = Maps.newTreeMap();
-        Map<String, AtomicInteger> bookTypeMap = Maps.newTreeMap();
+        Map<String, AtomicInteger> bookNameMap = Maps.newHashMap();
+        Map<String, AtomicInteger> bookTypeMap = Maps.newHashMap();
 
         for (String books : hotBook) {
             String[] bookz = books.split("%%");
@@ -164,17 +170,20 @@ public class StuHologramServiceImpl implements IStuHologramService {
             }
         }
 
-        Map<String, AtomicInteger> stringAtomicIntegerMap = sortMapByValue(bookNameMap);
-        Map<String, AtomicInteger> stringAtomicIntegerMap1 = sortMapByValue(bookTypeMap);
-        list.add(stringAtomicIntegerMap);
-        list.add(stringAtomicIntegerMap1);
-        return list;
+        Map<String, BigDecimal> shortBookNameMap = sortMapByValue(bookNameMap);
+        Map<String, BigDecimal> shortBookTypeMap = sortMapByValue(bookTypeMap);
+
+        HashMap<String, Map<String, BigDecimal>> re = new HashMap<String, Map<String, BigDecimal>>();
+        re.put("shortBookNameMap", shortBookNameMap);
+        re.put("shortBookTypeMap", shortBookTypeMap);
+
+        return re;
     }
 
     //Map 按value值从大到小排序，并取前10
-    public Map<String, AtomicInteger> sortMapByValue(Map<String, AtomicInteger> map) {
+    public Map<String, BigDecimal> sortMapByValue(Map<String, AtomicInteger> map) {
 
-        Map<String, AtomicInteger> sortedMap = new LinkedHashMap();
+        Map<String, BigDecimal> sortedMap = new LinkedHashMap();
         List<Map.Entry<String, AtomicInteger>> lists = new ArrayList(map.entrySet());
         Collections.sort(lists, new Comparator<Map.Entry<String, AtomicInteger>>() {
             @Override
@@ -194,11 +203,15 @@ public class StuHologramServiceImpl implements IStuHologramService {
         if (lists.size() >= 10) {
 
             for (Map.Entry<String, AtomicInteger> set : lists.subList(0, 10)) {
-                sortedMap.put(set.getKey(), set.getValue());
+                BigDecimal bigDecimal = new BigDecimal(set.getValue().intValue());
+                BigDecimal divide = bigDecimal.divide(new BigDecimal(1000)).setScale(2, RoundingMode.DOWN);
+                sortedMap.put(set.getKey(), divide);
             }
         } else {
             for (Map.Entry<String, AtomicInteger> set : lists) {
-                sortedMap.put(set.getKey(), set.getValue());
+                BigDecimal val = new BigDecimal(set.getValue().intValue());
+                BigDecimal divides = val.divide(new BigDecimal(1000)).setScale(2, RoundingMode.DOWN);
+                sortedMap.put(set.getKey(), divides);
             }
         }
         return sortedMap;
@@ -215,5 +228,76 @@ public class StuHologramServiceImpl implements IStuHologramService {
 
     }
 
+    /**
+     * 学院&年级基数，学院&年级TOP以学院切片
+     *
+     * @param baseSearchDTO
+     * @return
+     */
+    public Map<String, Object> groupGradeOrCollegeNOCondition(BaseSearchDTO baseSearchDTO) {
+        Map<String, Object> map = new HashMap<>();
+        List<ValueDTO> groupCollege = studentInfoMapper.groupCollege(baseSearchDTO.getGrade());
+        List<ValueDTO> groupGrade = studentInfoMapper.groupGrade(baseSearchDTO.getGrade());
+        map.put("groupCollege", groupCollege);
+        map.put("groupGrade", groupGrade);
+        return map;
+    }
 
+    /**
+     * 实际条件下的学院、年级计数
+     *
+     * @param baseSearchDTO
+     * @return
+     */
+    public Map<String, Object> groupGradeOrCollegeCondition(BaseSearchDTO baseSearchDTO) {
+        Map<String, Object> map = new HashMap<>();
+
+        List<ValueDTO> groupCollege = studentInfoMapper.groupCollege(baseSearchDTO.getGrade());
+        List<ValueDTO> groupGrade = studentInfoMapper.groupGrade(baseSearchDTO.getGrade());
+
+        Map<String, String> groupCollegeMap = listTomap(groupCollege);
+        Map<String, String> groupGradeMap = listTomap(groupGrade);
+
+
+        List<ValueDTO> groupGradeeCondition = borrowPropertionMapper.groupGrade(baseSearchDTO.getMonths(), baseSearchDTO.getGrade());
+        List<ValueDTO> groupCollegeeCondition = borrowPropertionMapper.groupCollege(baseSearchDTO.getMonths(), baseSearchDTO.getGrade());
+
+        Map<String, String> groupGradeeConditionMap =  listTomap(groupGradeeCondition);
+        Map<String, String> groupCollegeeConditionMap =  listTomap(groupCollegeeCondition);
+
+
+        Map<String, String> sortgrade = Maps.newHashMap();
+        Map<String, String> sortcollege = Maps.newHashMap();
+
+        getMap(groupCollegeMap,groupCollegeeConditionMap,sortgrade);
+        getMap(groupGradeMap,groupGradeeConditionMap,sortcollege);
+
+        map.put("sortgrade", sortcollege);
+        map.put("sortcollege", sortgrade);
+        return map;
+    }
+
+    public void getMap(Map<String, String> fomMap1,Map<String, String> formMap2,Map<String, String> toMap){
+
+        for(Map.Entry<String,String> m: formMap2.entrySet()){
+
+            String value = m.getValue();
+            if (fomMap1.containsKey(m.getKey())){
+                String fromValue2 = fomMap1.get(m.getKey());
+                if (StringUtils.isNotBlank(value) && StringUtils.isNotBlank(fromValue2)){
+                    BigDecimal value1 = new BigDecimal(value);
+                    BigDecimal value2 = new BigDecimal(fromValue2);
+                    BigDecimal toValue = value2.divide(value1,3, RoundingMode.HALF_UP);
+                    toMap.put(m.getKey(),toValue.toString());
+                }
+            }
+        }
+    }
+
+
+    private Map<String, String> listTomap(List<ValueDTO> list) {
+        Map<String, String> map = list.stream().collect(
+                Collectors.toMap(ValueDTO::getKey, (p) -> p.getNums() + ""));
+        return map;
+    }
 }

@@ -9,6 +9,11 @@
         <result column="books" property="books" />
     </resultMap>
 
+    <resultMap id="venue" type="com.eisoo.model.ValueDTO">
+        <result column="name" property="key"/>
+        <result column="nums" property="nums"/>
+    </resultMap>
+
     <select id="getHotBook" resultType="string">
         select t1.books from es_borrow_trend t1 inner join es_student_info t2 on t1.std_id=t2.std_id
          where t1.days like CONCAT(#{months},'%')
@@ -18,9 +23,43 @@
         <if test="grade != null">
             and t2.grade = #{grade}
         </if>
-
     </select>
 
+    <select id="daysOrder" resultType="string">
+        select days from es_borrow_trend
+        where days like CONCAT(#{months},'%')
+        <if test="college != null">
+            and t2.college = #{college}
+        </if>
+        <if test="grade != null">
+            and t2.grade = #{grade}
+        </if>
+         order by days
+    </select>
+
+    <select id="getHeatMap" resultType="string">
+        select count(DISTINCT(std_id))  from es_borrow_trend
+        where days like CONCAT(#{months},'%')
+        <if test="college != null">
+            and college = #{college}
+        </if>
+        <if test="grade != null">
+            and grade = #{grade}
+        </if>
+        and std_id in (select distinct std_id from es_student_info)
+    </select>
+    
+    <select id="getTrend"  resultMap="venue">
+        select days as  name, count(distinct(std_id)) nums from es_borrow_trend
+        where days like CONCAT(#{months},'%')
+        <if test="college != null">
+            and college = #{college}
+        </if>
+        <if test="grade != null">
+            and grade = #{grade}
+        </if>
+        group by days order by days
+    </select>
 
 </mapper>
 
