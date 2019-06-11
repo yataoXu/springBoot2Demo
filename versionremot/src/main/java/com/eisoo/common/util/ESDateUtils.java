@@ -25,6 +25,15 @@ public class ESDateUtils {
         return false;
     }
 
+    public static String formatLastMonth(String thisMoth){
+        DateTime parse = DateUtil.parse(thisMoth + "-01").offset(DateField.MONTH, -1);
+        int year = parse.year();
+        int month = parse.monthStartFromOne();
+        StringBuilder sb = new StringBuilder();
+        String lastMonth = sb.append(year).append("-").append(month).toString();
+        return lastMonth;
+    }
+
     public static void main(String[] args) {
         Date date1 = DateUtil.parseDate("2018-12-01");
         Date date2 = DateUtil.parseDate("2019-03-01");

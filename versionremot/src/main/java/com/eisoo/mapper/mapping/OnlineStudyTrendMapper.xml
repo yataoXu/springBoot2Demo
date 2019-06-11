@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.eisoo.mapper.OnlineStudyTrendMapper">
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.eisoo.model.OnlineStudyTrend">
+        <result column="days" property="days" jdbcType="TIMESTAMP"/>
+        <result column="std_id" property="stdId" jdbcType="DECIMAL"/>
+        <result column="college" property="college" jdbcType="VARCHAR"/>
+        <result column="major" property="major" jdbcType="VARCHAR"/>
+        <result column="grade" property="grade" jdbcType="VARCHAR"/>
+        <result column="urls" property="urls" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <resultMap id="venue" type="com.eisoo.model.ValueDTO">
+        <result column="name" property="key"/>
+        <result column="nums" property="nums"/>
+    </resultMap>
+
+    <select id="onlineStudyCount" resultType="int">
+        select count(distinct std_id) from table_onlineStudy_trend
+        where days like CONCAT(#{months},'%')
+        <if test="college != null">
+            and college = #{college}
+        </if>
+        <if test="grade != null">
+            and grade = #{grade}
+        </if>
+    </select>
+
+    <select id="getTrend" resultMap="venue">
+        select days, count(distinct std_id) nums from table_onlineStudy_trend
+        where days like CONCAT(#{months},'%')
+        <if test="college != null">
+            and college = #{college}
+        </if>
+        <if test="grade != null">
+            and grade = #{grade}
+        </if>
+        group by days
+    </select>
+</mapper>

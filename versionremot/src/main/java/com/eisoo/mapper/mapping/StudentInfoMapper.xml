@@ -37,7 +37,7 @@
                 and grade = #{grade}
             </if>
         </where>
-        group by college order by college desc;
+        group by college
     </select>
 
     <select id="groupGrade" resultMap="venue">
@@ -47,7 +47,7 @@
                 and college = #{college}
             </if>
         </where>
-        group by grade order by grade desc;
+        group by grade
     </select>
 
 

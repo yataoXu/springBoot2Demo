@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.eisoo.mapper.StudyPropertionMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.eisoo.model.StudyPropertion">
+        <result column="months" property="months" jdbcType="VARCHAR"/>
+        <result column="college" property="college" jdbcType="VARCHAR"/>
+        <result column="grade" property="grade" jdbcType="VARCHAR"/>
+        <result column="major" property="major" jdbcType="VARCHAR"/>
+        <result column="counts" property="counts" jdbcType="DECIMAL"/>
+    </resultMap>
+
+    <resultMap id="venue" type="com.eisoo.model.ValueDTO">
+        <result column="name" property="key"/>
+        <result column="nums" property="nums"/>
+    </resultMap>
+
+    <select id="getStudyProperCount" resultType="int">
+        select sum(counts) from table_study_propertion
+        where months = #{months}
+        <if test="college != null">
+            and college = #{college}
+        </if>
+        <if test="grade != null">
+            and grade = #{grade}
+        </if>
+    </select>
+
+    <select id="collegeCondition" resultMap="venue">
+        select college as name, sum(counts) as nums from table_study_propertion
+        where months = #{months}
+        <if test="grade != null">
+            and grade = #{grade}
+        </if>
+        group by college
+    </select>
+
+    <select id="gradeCondition" resultMap="venue">
+        select grade as name, sum(counts) as nums from table_study_propertion
+        where months = #{months}
+        <if test="college != null">
+            and college = #{college}
+        </if>
+        group by grade order by grade desc
+    </select>
+
+</mapper>

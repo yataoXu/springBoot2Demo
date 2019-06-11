@@ -14,6 +14,10 @@ public interface IStuHologramService {
 
     public Map<String,Integer> getPortrait(BaseSearchDTO baseSearchDTO);
 
+    public Map<String,Integer> getFormatPortrait(BaseSearchDTO baseSearchDTO);
+
+    public Map<String,Integer> getStudyPortrait(BaseSearchDTO baseSearchDTO);
+
     public Map<String, Object> getGrade(BaseSearchDTO baseSearchDTO);
 
     public HashMap<String, Map<String, BigDecimal>> getHotBook(BaseSearchDTO baseSearchDTO);
@@ -31,4 +35,10 @@ public interface IStuHologramService {
      * @return
      */
     public Map<String,Object> groupGradeOrCollegeCondition(BaseSearchDTO baseSearchDTO);
+
+    public Map<String,Object> extractStudy(BaseSearchDTO baseSearchDTO);
+
+    public Map<String,Object> extractStudyCondition(BaseSearchDTO baseSearchDTO);
+
+    public Map<String,Object> extractOnlineStudy(BaseSearchDTO baseSearchDTO);
 }

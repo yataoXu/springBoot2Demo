@@ -89,31 +89,10 @@ public class StuHologramContrller {
 
                 List<ValueDTO> trend = borrowTrendMapper.getTrend(baseSearchDTO.getMonths(), baseSearchDTO.getCollege(), baseSearchDTO.getGrade());
                 map.put("trend", trend);
-
             } else {
-
-
-                Map<String, Integer> portrait = stuHologramService.getPortrait(baseSearchDTO);
-                if (portrait.containsKey("学科均衡") && portrait.containsKey("偏科")) {
-                    Integer k1 = portrait.get("学科均衡");
-                    Integer k2 = portrait.get("学科均衡");
-                    if (k1 != null && k2 != null) {
-                        if (k1 / (k1 + k2) >= 7) {
-                            portrait.remove("学科均衡'");
-                        } else if (k1 / (k1 + k2) < 3) {
-                            portrait.remove("'偏科''");
-                        }
-                    } else {
-                        portrait.remove("学科均衡'");
-                        portrait.remove("'偏科''");
-                    }
-                }
-                if (portrait.containsKey("寝室宅")) {
-                    portrait.remove("寝室宅");
-                }
+                Map<String, Integer> portrait = stuHologramService.getFormatPortrait(baseSearchDTO);
                 HashMap<String, Map<String, Integer>> portraitMap = new HashMap<String, Map<String, Integer>>();
                 portraitMap.put("student", portrait);
-
                 // 实际条件下的学院、年级计数
                 Map<String, Object> groupGradeOrCollegeCondition = stuHologramService.groupGradeOrCollegeCondition(baseSearchDTO);
                 map.putAll(portraitMap);
@@ -121,13 +100,15 @@ public class StuHologramContrller {
             }
         } else if ("study".equals(baseSearchDTO.getType())) {
             if (baseSearchDTO.getPage() == 1) {
-
-            }else{
-
+                Map<String, Object> stringObjectMap = stuHologramService.extractStudy(baseSearchDTO);
+                map.putAll(stringObjectMap);
+            } else {
+                Map<String, Object> stringObjectMap = stuHologramService.extractStudyCondition(baseSearchDTO);
+                map.putAll(stringObjectMap);
             }
-
-
         } else if ("onlineStudy".equals(baseSearchDTO.getType())) {
+            Map<String, Object> stringObjectMap = stuHologramService.extractOnlineStudy(baseSearchDTO);
+            map.putAll(stringObjectMap);
         }
 
         resultDTO.setData(map);

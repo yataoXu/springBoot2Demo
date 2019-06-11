@@ -9,4 +9,5 @@ public interface StudyTrendMapper {
 
     List<ValueDTO> getTrend(@Param("months") String month);
 
+    ValueDTO getStudyTrend(@Param("radix") double radix, @Param("college") String college, @Param("grade") String grade, @Param("months") String month);
 }

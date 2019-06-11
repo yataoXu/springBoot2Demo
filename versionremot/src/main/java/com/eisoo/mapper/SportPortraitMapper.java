@@ -8,5 +8,5 @@ import java.util.List;
 
 public interface SportPortraitMapper {
 
-    List<SportPortrait> getPortrait(@Param("params") String params, @Param("months") String months, @Param("college") String college, @Param("grade") String grade);
+    List<SportPortrait> getPortrait(@Param("months") String months, @Param("college") String college, @Param("grade") String grade);
 }
