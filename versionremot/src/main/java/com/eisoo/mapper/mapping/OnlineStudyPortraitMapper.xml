@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.eisoo.mapper.OnlineStudyPortraitMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.eisoo.model.OnlineStudyPortrait">
+        <result column="months" property="months" jdbcType="VARCHAR"/>
+        <result column="college" property="college" jdbcType="VARCHAR"/>
+        <result column="major" property="major" jdbcType="VARCHAR"/>
+        <result column="grade" property="grade" jdbcType="DECIMAL"/>
+        <result column="love_book" property="loveBook" jdbcType="DECIMAL"/>
+        <result column="super_scholar" property="superScholar" jdbcType="DECIMAL"/>
+        <result column="bad_scholar" property="badScholar" jdbcType="DECIMAL"/>
+        <result column="love_dorm" property="loveDorm" jdbcType="DECIMAL"/>
+        <result column="score_unbalance" property="scoreUnbalance" jdbcType="DECIMAL"/>
+        <result column="score_balance" property="scoreBalance" jdbcType="DECIMAL"/>
+        <result column="love_study" property="loveStudy" jdbcType="DECIMAL"/>
+        <result column="love_literature" property="loveLiterature" jdbcType="DECIMAL"/>
+        <result column="love_politics" property="lovePolitics" jdbcType="DECIMAL"/>
+        <result column="love_law" property="loveLaw" jdbcType="DECIMAL"/>
+        <result column="love_philosophy" property="lovePhilosophy" jdbcType="DECIMAL"/>
+        <result column="love_sport" property="loveSport" jdbcType="DECIMAL"/>
+        <result column="night_runner" property="nightRunner" jdbcType="DECIMAL"/>
+        <result column="muke" property="muke" jdbcType="DECIMAL"/>
+        <result column="postgraduate" property="postgraduate" jdbcType="DECIMAL"/>
+        <result column="search" property="search" jdbcType="DECIMAL"/>
+    </resultMap>
+
+    <resultMap id="venue" type="com.eisoo.model.ValueDTO">
+        <result column="name" property="key"/>
+        <result column="nums" property="nums"/>
+    </resultMap>
+
+    <select id="getPortrait" resultMap="BaseResultMap">
+        select * from table_onlineStudy_portrait where months=#{months}
+        <if test="college != null">
+            and college = #{college}
+        </if>
+        <if test="grade != null">
+            and grade = #{grade}
+        </if>
+    </select>
+</mapper>

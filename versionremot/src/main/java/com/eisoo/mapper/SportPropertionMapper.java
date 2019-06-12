@@ -9,7 +9,7 @@ public interface SportPropertionMapper {
 
     Integer getHotSpot(@Param("months") String months, @Param("college") String college, @Param("grade") String grade);
 
-    List<ValueDTO> orderCollegeMonth(@Param("months") String months, @Param("grade") String grade);
+    List<ValueDTO> gradeCondition(@Param("months") String months, @Param("college") String college);
 
-    List<ValueDTO> orderGradeMonth(@Param("months") String months, @Param("grade") String grade);
+    List<ValueDTO> collegeCondition(@Param("months") String months, @Param("grade") String grade);
 }

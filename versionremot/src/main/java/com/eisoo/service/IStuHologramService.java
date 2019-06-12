@@ -12,9 +12,12 @@ public interface IStuHologramService {
 
     public Map<String, Object> getDura(BaseSearchDTO baseSearchDTO);
 
-    public Map<String,Integer> getPortrait(BaseSearchDTO baseSearchDTO);
+    public Map<String,Integer> getBorrowPortrait(BaseSearchDTO baseSearchDTO);
+
 
     public Map<String,Integer> getFormatPortrait(BaseSearchDTO baseSearchDTO);
+
+    public Map<String,Integer> sportPortrait(BaseSearchDTO baseSearchDTO);
 
     public Map<String,Integer> getStudyPortrait(BaseSearchDTO baseSearchDTO);
 
@@ -34,11 +37,15 @@ public interface IStuHologramService {
      * @param baseSearchDTO
      * @return
      */
-    public Map<String,Object> groupGradeOrCollegeCondition(BaseSearchDTO baseSearchDTO);
+    public Map<String,Object> borrowGroupGradeOrCollege(BaseSearchDTO baseSearchDTO);
+
+    public Map<String,Object> sportGroupGradeOrCollege(BaseSearchDTO baseSearchDTO);
 
     public Map<String,Object> extractStudy(BaseSearchDTO baseSearchDTO);
 
     public Map<String,Object> extractStudyCondition(BaseSearchDTO baseSearchDTO);
 
     public Map<String,Object> extractOnlineStudy(BaseSearchDTO baseSearchDTO);
+
+    public Map<String,Integer> getOnlineStudyPortrait(BaseSearchDTO baseSearchDTO);
 }

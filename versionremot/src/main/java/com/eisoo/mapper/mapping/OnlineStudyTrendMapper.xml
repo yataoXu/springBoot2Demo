@@ -28,7 +28,7 @@
     </select>
 
     <select id="getTrend" resultMap="venue">
-        select days, count(distinct std_id) nums from table_onlineStudy_trend
+        select days as name, count(distinct std_id) nums from table_onlineStudy_trend
         where days like CONCAT(#{months},'%')
         <if test="college != null">
             and college = #{college}
@@ -38,4 +38,17 @@
         </if>
         group by days
     </select>
+
+    <select id="getUrls" resultType="string">
+    select urls from table_onlineStudy_trend
+        where days like CONCAT(#{months},'%')
+        <if test="college != null">
+            and college = #{college}
+        </if>
+        <if test="grade != null">
+            and grade = #{grade}
+        </if>
+
+    </select>
+
 </mapper>

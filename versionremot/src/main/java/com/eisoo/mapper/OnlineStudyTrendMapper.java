@@ -10,4 +10,7 @@ public interface OnlineStudyTrendMapper {
     int onlineStudyCount(@Param("months") String months,@Param("college") String college, @Param("grade") String grade);
 
     List<ValueDTO> getTrend(@Param("months") String months, @Param("college") String college, @Param("grade") String grade);
+
+    List<String> getUrls(@Param("months") String months,@Param("college") String college, @Param("grade") String grade);
+
 }

@@ -6,10 +6,10 @@ import com.eisoo.common.constant.state.ESConstants;
 import com.eisoo.common.core.exception.BusinessException;
 import com.eisoo.common.util.ESDateUtils;
 import com.eisoo.mapper.*;
-import com.eisoo.model.SportPortrait;
-import com.eisoo.model.StudyProtrait;
+import com.eisoo.model.Protrait;
 import com.eisoo.model.ValueDTO;
 import com.eisoo.service.IStuHologramService;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -46,6 +46,10 @@ public class StuHologramServiceImpl implements IStuHologramService {
     StudyLoungeMapper studyLoungeMapper;
     @Autowired
     OnlineStudyTrendMapper onlineStudyTrendMapper;
+    @Autowired
+    OnlineStudyPortraitMapper onlineStudyPortraitMapper;
+    @Autowired
+    OnlineStudyPropertionMapper onlineStudyPropertionMapper;
 
 
     /**
@@ -61,7 +65,7 @@ public class StuHologramServiceImpl implements IStuHologramService {
 
         List<ValueDTO> groupcollege = studentInfoMapper.groupCollege(baseSearchDTO.getGrade());
 
-        List<ValueDTO> sortcollege = sportPropertionMapper.orderCollegeMonth(baseSearchDTO.getMonths(), baseSearchDTO.getGrade());
+        List<ValueDTO> sortcollege = sportPropertionMapper.collegeCondition(baseSearchDTO.getMonths(), baseSearchDTO.getGrade());
 
         map.put("groupcollege", groupcollege);
         map.put("sortcollege", sortcollege);
@@ -79,7 +83,7 @@ public class StuHologramServiceImpl implements IStuHologramService {
         Map<String, Object> map = MapUtil.newHashMap();
         List<ValueDTO> groupGrade = studentInfoMapper.groupGrade(baseSearchDTO.getCollege());
 
-        List<ValueDTO> orderGradeMonth = sportPropertionMapper.orderGradeMonth(baseSearchDTO.getMonths(), baseSearchDTO.getGrade());
+        List<ValueDTO> orderGradeMonth = sportPropertionMapper.gradeCondition(baseSearchDTO.getMonths(), baseSearchDTO.getGrade());
 
         map.put("groupGrade", groupGrade);
         map.put("orderGradeMonth", orderGradeMonth);
@@ -105,68 +109,30 @@ public class StuHologramServiceImpl implements IStuHologramService {
 
     @Override
     public Map<String, Integer> getFormatPortrait(BaseSearchDTO baseSearchDTO) {
-        Map<String, Integer> portrait = getPortrait(baseSearchDTO);
-        Map<String, Integer> stringIntegerMap = formatMap(portrait);
+        Map<String, Integer> portrait = getBorrowPortrait(baseSearchDTO);
+        Map<String, Integer> stringIntegerMap = formatMap("borrow", portrait);
         return stringIntegerMap;
     }
 
     @Override
-    public Map<String, Integer> getPortrait(BaseSearchDTO baseSearchDTO) {
+    public Map<String, Integer> sportPortrait(BaseSearchDTO baseSearchDTO) {
+        return getProtraits("sport", baseSearchDTO.getMonths(), baseSearchDTO.getCollege(), baseSearchDTO.getGrade());
 
-        int loveBookSum = 0;
-        int superScholarSum = 0;
-        int badScholarSum = 0;
-        int loveDormSum = 0;
-        int scoreUnbalanceSum = 0;
-        int scoreBalanceSum = 0;
-        int loveStudySum = 0;
-        int loveLiteratureSum = 0;
-        int lovePoliticsSum = 0;
-        int loveLawSum = 0;
-        int lovePhilosophySum = 0;
-        int loveSportSum = 0;
-        int nightRunnerSum = 0;
-
-        List<SportPortrait> portrait = sportPortraitMapper.getPortrait(baseSearchDTO.getMonths(), baseSearchDTO.getCollege(), baseSearchDTO.getGrade());
-
-        for (SportPortrait sportPortrait : portrait) {
-
-            loveBookSum += sportPortrait.getLoveBook();
-            superScholarSum += sportPortrait.getSuperScholar();
-            badScholarSum += sportPortrait.getBadScholar();
-            loveDormSum += sportPortrait.getLoveDorm();
-            scoreUnbalanceSum += sportPortrait.getScoreUnbalance();
-            scoreBalanceSum += sportPortrait.getScoreBalance();
-            loveStudySum += sportPortrait.getLoveStudy();
-            loveLiteratureSum += sportPortrait.getLoveLiterature();
-            lovePoliticsSum += sportPortrait.getLovePolitics();
-            loveLawSum += sportPortrait.getLoveLaw();
-            lovePhilosophySum += sportPortrait.getLovePhilosophy();
-            loveSportSum += sportPortrait.getLoveSport();
-            nightRunnerSum += sportPortrait.getNightRunner();
-
-        }
-
-        Map<String, Integer> map = MapUtil.newHashMap();
-        map.put(ESConstants.PortraitMap.love_book.getPortraitChinese(), loveBookSum);
-        map.put(ESConstants.PortraitMap.super_scholar.getPortraitChinese(), superScholarSum);
-        map.put(ESConstants.PortraitMap.bad_scholar.getPortraitChinese(), badScholarSum);
-        map.put(ESConstants.PortraitMap.love_dorm.getPortraitChinese(), loveDormSum);
-        map.put(ESConstants.PortraitMap.score_unbalance.getPortraitChinese(), scoreUnbalanceSum);
-        map.put(ESConstants.PortraitMap.score_balance.getPortraitChinese(), scoreBalanceSum);
-        map.put(ESConstants.PortraitMap.love_study.getPortraitChinese(), loveStudySum);
-        map.put(ESConstants.PortraitMap.love_literature.getPortraitChinese(), loveLiteratureSum);
-        map.put(ESConstants.PortraitMap.love_politics.getPortraitChinese(), lovePoliticsSum);
-        map.put(ESConstants.PortraitMap.love_law.getPortraitChinese(), loveLawSum);
-        map.put(ESConstants.PortraitMap.love_philosophy.getPortraitChinese(), lovePhilosophySum);
-        map.put(ESConstants.PortraitMap.love_sport.getPortraitChinese(), loveSportSum);
-        map.put(ESConstants.PortraitMap.night_runner.getPortraitChinese(), nightRunnerSum);
-
-        return map;
     }
 
     @Override
+    public Map<String, Integer> getBorrowPortrait(BaseSearchDTO baseSearchDTO) {
+        return getProtraits("borrow", baseSearchDTO.getMonths(), baseSearchDTO.getCollege(), baseSearchDTO.getGrade());
+
+    }
+
+
+    @Override
     public Map<String, Integer> getStudyPortrait(BaseSearchDTO baseSearchDTO) {
+        return getProtraits("study", baseSearchDTO.getMonths(), baseSearchDTO.getCollege(), baseSearchDTO.getGrade());
+    }
+
+    public Map<String, Integer> getProtraits(String param, String month, String college, String grade) {
 
         int loveBookSum = 0;
         int superScholarSum = 0;
@@ -182,9 +148,18 @@ public class StuHologramServiceImpl implements IStuHologramService {
         int loveSportSum = 0;
         int nightRunnerSum = 0;
 
-        List<StudyProtrait> portraits = studyProtraitMapper.getPortrait(baseSearchDTO.getMonths(), baseSearchDTO.getCollege(), baseSearchDTO.getGrade());
+        List<Protrait> portraits = Lists.newArrayList();
+        if (param.equalsIgnoreCase("study")) {
+            portraits = studyProtraitMapper.getPortrait(month, college, grade);
+        } else if (param.equalsIgnoreCase("sport")) {
+            portraits = sportPortraitMapper.getPortrait(month, college, grade);
+        } else if (param.equalsIgnoreCase("onlineStudy")) {
+            portraits = onlineStudyPortraitMapper.getPortrait(month, college, grade);
+        } else {
+            throw new BusinessException("param error ");
+        }
 
-        for (StudyProtrait portrait : portraits) {
+        for (Protrait portrait : portraits) {
 
             loveBookSum += portrait.getLoveBook();
             superScholarSum += portrait.getSuperScholar();
@@ -220,33 +195,21 @@ public class StuHologramServiceImpl implements IStuHologramService {
         return map;
     }
 
+
     public HashMap<String, Map<String, BigDecimal>> getHotBook(BaseSearchDTO baseSearchDTO) {
+        return getHotSource("hotbook", baseSearchDTO.getMonths(), baseSearchDTO.getCollege(), baseSearchDTO.getGrade());
+    }
 
-        List<Map<String, AtomicInteger>> list = new ArrayList<>();
+    public void buildMap(List<String> list, Map<String, AtomicInteger> nameMap, Map<String, AtomicInteger> typeMap) {
+        for (String temp : list) {
+            String[] values = temp.split("%%");
+            for (String value : values) {
 
-        List<String> hotBook = borrowTrendMapper.getHotBook(baseSearchDTO.getMonths(), baseSearchDTO.getCollege(), baseSearchDTO.getGrade());
-
-        Map<String, AtomicInteger> bookNameMap = Maps.newHashMap();
-        Map<String, AtomicInteger> bookTypeMap = Maps.newHashMap();
-
-        for (String books : hotBook) {
-            String[] bookz = books.split("%%");
-            for (String book : bookz) {
-
-                String[] split1 = book.split("&&");
-                statistics(bookNameMap, split1[0]);
-                statistics(bookTypeMap, split1[1]);
+                String[] split1 = value.split("&&");
+                statistics(nameMap, split1[0]);
+                statistics(typeMap, split1[1]);
             }
         }
-
-        Map<String, BigDecimal> shortBookNameMap = sortMapByValue(bookNameMap);
-        Map<String, BigDecimal> shortBookTypeMap = sortMapByValue(bookTypeMap);
-
-        HashMap<String, Map<String, BigDecimal>> re = new HashMap<String, Map<String, BigDecimal>>();
-        re.put("shortBookNameMap", shortBookNameMap);
-        re.put("shortBookTypeMap", shortBookTypeMap);
-
-        return re;
     }
 
     //Map 按value值从大到小排序，并取前10
@@ -312,38 +275,18 @@ public class StuHologramServiceImpl implements IStuHologramService {
         return map;
     }
 
+    public Map<String, Object> sportGroupGradeOrCollege(BaseSearchDTO baseSearchDTO) {
+        return sortgradeAndCollege("sport", baseSearchDTO);
+    }
+
     /**
      * 实际条件下的学院、年级计数
      *
      * @param baseSearchDTO
      * @return
      */
-    public Map<String, Object> groupGradeOrCollegeCondition(BaseSearchDTO baseSearchDTO) {
-        Map<String, Object> map = new HashMap<>();
-
-        List<ValueDTO> groupCollege = studentInfoMapper.groupCollege(baseSearchDTO.getGrade());
-        List<ValueDTO> groupGrade = studentInfoMapper.groupGrade(baseSearchDTO.getGrade());
-
-        Map<String, String> groupCollegeMap = listTomap(groupCollege);
-        Map<String, String> groupGradeMap = listTomap(groupGrade);
-
-
-        List<ValueDTO> groupGradeeCondition = borrowPropertionMapper.groupGrade(baseSearchDTO.getMonths(), baseSearchDTO.getGrade());
-        List<ValueDTO> groupCollegeeCondition = borrowPropertionMapper.groupCollege(baseSearchDTO.getMonths(), baseSearchDTO.getGrade());
-
-        Map<String, String> groupGradeeConditionMap = listTomap(groupGradeeCondition);
-        Map<String, String> groupCollegeeConditionMap = listTomap(groupCollegeeCondition);
-
-
-        Map<String, String> sortgrade = Maps.newHashMap();
-        Map<String, String> sortcollege = Maps.newHashMap();
-
-        getMap(groupCollegeMap, groupCollegeeConditionMap, sortgrade);
-        getMap(groupGradeMap, groupGradeeConditionMap, sortcollege);
-
-        map.put("sortgrade", sortcollege);
-        map.put("sortcollege", sortgrade);
-        return map;
+    public Map<String, Object> borrowGroupGradeOrCollege(BaseSearchDTO baseSearchDTO) {
+        return sortgradeAndCollege("borrow", baseSearchDTO);
     }
 
     public void getMap(Map<String, String> fomMap1, Map<String, String> formMap2, Map<String, String> toMap) {
@@ -393,10 +336,10 @@ public class StuHologramServiceImpl implements IStuHologramService {
 
         map.put("percent", percent);
         String hot = null;
-        if (StringUtils.isNotBlank(studyTrend.getKey()) && studyTrend.getNums() != 0){
+        if (StringUtils.isNotBlank(studyTrend.getKey()) && studyTrend.getNums() != 0) {
             hot = hotJugde(Integer.parseInt(studyTrend.getKey()), studyTrend.getNums());
         }
-        map.put("hot",hot );
+        map.put("hot", hot);
         map.put("trendChart", trend);
         return map;
     }
@@ -432,8 +375,8 @@ public class StuHologramServiceImpl implements IStuHologramService {
 
         // 画像
         Map<String, Integer> portrait = getStudyPortrait(baseSearchDTO);
-        Map<String, Integer> portraitMap = formatMap(portrait);
-        Map<String, Object> stringObjectMap = sortgradeAndCollege(baseSearchDTO);
+        Map<String, Integer> portraitMap = formatMap("study", portrait);
+        Map<String, Object> stringObjectMap = sortgradeAndCollege("study", baseSearchDTO);
 
         map.putAll(stringObjectMap);
         map.put("student", portraitMap);
@@ -443,7 +386,7 @@ public class StuHologramServiceImpl implements IStuHologramService {
     }
 
 
-    public Map<String, Object> sortgradeAndCollege(BaseSearchDTO baseSearchDTO) {
+    public Map<String, Object> sortgradeAndCollege(String param, BaseSearchDTO baseSearchDTO) {
         Map<String, Object> map = new HashMap<>();
 
         List<ValueDTO> groupCollege = studentInfoMapper.groupCollege(baseSearchDTO.getGrade());
@@ -452,9 +395,21 @@ public class StuHologramServiceImpl implements IStuHologramService {
         Map<String, String> groupCollegeMap = listTomap(groupCollege);
         Map<String, String> groupGradeMap = listTomap(groupGrade);
 
-        List<ValueDTO> gradeCondition = studyPropertionMapper.gradeCondition(baseSearchDTO.getMonths(), baseSearchDTO.getGrade());
-        List<ValueDTO> collegeCondition = studyPropertionMapper.collegeCondition(baseSearchDTO.getMonths(), baseSearchDTO.getGrade());
-
+        List<ValueDTO> gradeCondition = Lists.newArrayList();
+        List<ValueDTO> collegeCondition = Lists.newArrayList();
+        if (param.equalsIgnoreCase("study")) {
+            gradeCondition = studyPropertionMapper.gradeCondition(baseSearchDTO.getMonths(), baseSearchDTO.getGrade());
+            collegeCondition = studyPropertionMapper.collegeCondition(baseSearchDTO.getMonths(), baseSearchDTO.getGrade());
+        } else if (param.equalsIgnoreCase("sport")) {
+            gradeCondition = sportPropertionMapper.gradeCondition(baseSearchDTO.getMonths(), baseSearchDTO.getGrade());
+            collegeCondition = sportPropertionMapper.collegeCondition(baseSearchDTO.getMonths(), baseSearchDTO.getGrade());
+        } else if (param.equalsIgnoreCase("onlineStudy")) {
+            gradeCondition = onlineStudyPropertionMapper.gradeCondition(baseSearchDTO.getMonths(), baseSearchDTO.getGrade());
+            collegeCondition = onlineStudyPropertionMapper.collegeCondition(baseSearchDTO.getMonths(), baseSearchDTO.getGrade());
+        } else if (param.equalsIgnoreCase("borrow")) {
+            gradeCondition = borrowPropertionMapper.gradeCondition(baseSearchDTO.getMonths(), baseSearchDTO.getGrade());
+            collegeCondition = borrowPropertionMapper.collegeCondition(baseSearchDTO.getMonths(), baseSearchDTO.getGrade());
+        }
         Map<String, String> groupGradeConditionMap = listTomap(gradeCondition);
         Map<String, String> groupCollegeConditionMap = listTomap(collegeCondition);
 
@@ -470,10 +425,12 @@ public class StuHologramServiceImpl implements IStuHologramService {
 
     }
 
-    private Map<String, Integer> formatMap(Map<String, Integer> portrait) {
+    private Map<String, Integer> formatMap(String param, Map<String, Integer> portrait) {
+
         if (portrait.containsKey("学科均衡") && portrait.containsKey("偏科")) {
             Integer k1 = portrait.get("学科均衡");
             Integer k2 = portrait.get("学科均衡");
+
             if (k1 != null && k2 != null) {
                 if (k1 / (k1 + k2) >= 7) {
                     portrait.remove("学科均衡'");
@@ -485,8 +442,21 @@ public class StuHologramServiceImpl implements IStuHologramService {
                 portrait.remove("'偏科''");
             }
         }
-        if (portrait.containsKey("寝室宅")) {
-            portrait.remove("寝室宅");
+
+        if (param.equalsIgnoreCase("onlineStudy")) {
+            if (portrait.containsKey("学渣")) {
+                portrait.remove("学渣");
+            }
+            if (portrait.containsKey("寝室宅")) {
+                portrait.remove("寝室宅");
+            }
+            if (portrait.containsKey("考研党")) {
+                portrait.remove("考研党");
+            }
+        } else {
+            if (portrait.containsKey("寝室宅")) {
+                portrait.remove("寝室宅");
+            }
         }
         return portrait;
     }
@@ -494,7 +464,7 @@ public class StuHologramServiceImpl implements IStuHologramService {
 
     @Override
     public Map<String, Object> extractOnlineStudy(BaseSearchDTO baseSearchDTO) {
-        Map<String,Object> map = MapUtil.newHashMap();
+        Map<String, Object> map = MapUtil.newHashMap();
         if (baseSearchDTO.getPage() == 1) {
             int recent = onlineStudyTrendMapper.onlineStudyCount(baseSearchDTO.getMonths(), baseSearchDTO.getCollege(), baseSearchDTO.getGrade());
             String lastMonth = ESDateUtils.formatLastMonth(baseSearchDTO.getMonths());
@@ -506,18 +476,70 @@ public class StuHologramServiceImpl implements IStuHologramService {
             // 得到学生数量
             int studentCount = studentInfoMapper.getStudentCount(baseSearchDTO);
             String hot = hotJugde(recent, studentCount);
-            map.put("hot",hot);
-            map.put("percent",linkCounts(last,recent));
-            map.put("trendChart",linkCounts(last,recent));
+            map.put("hot", hot);
+            map.put("percent", linkCounts(last, recent));
+            map.put("trendChart", trend);
+        } else if (baseSearchDTO.getPage() == 2) {
+
+            // 热门资源和类型
+            HashMap<String, Map<String, BigDecimal>> url = getHotSource("url", baseSearchDTO.getMonths(), baseSearchDTO.getCollege(), baseSearchDTO.getGrade());
+            Map<String, BigDecimal> hotName = url.get("hotName");
+            List<String> hotUrls = Lists.newArrayList();
+            for (String key : hotName.keySet()) {
+                if (hotUrls.size() < 6) {
+                    hotUrls.add(key);
+                } else {
+                    break;
+                }
+            }
+            map.put("hotType", url.get("hotType"));
+            map.put("hotUrls", hotUrls);
+            Map<String, Object> onlineStudy = sortgradeAndCollege("onlineStudy", baseSearchDTO);
+            Map<String, Integer> onlineStudyPortrait = getOnlineStudyPortrait(baseSearchDTO);
+            Map<String, Integer> portrait = formatMap("onlineStudy", onlineStudyPortrait);
+            map.put("portrait", portrait);
+            map.put("onlineStudy", onlineStudy);
 
 
         }
-        return null;
+        return map;
     }
-    private String linkCounts(int last, int recent){
+
+    @Override
+    public Map<String, Integer> getOnlineStudyPortrait(BaseSearchDTO baseSearchDTO) {
+        return getProtraits("onlineStudy", baseSearchDTO.getMonths(), baseSearchDTO.getCollege(), baseSearchDTO.getGrade());
+    }
+
+
+    public HashMap<String, Map<String, BigDecimal>> getHotSource(String hotType, String months, String college, String grade) {
+
+        List<String> list = Lists.newArrayList();
+        if (hotType.equalsIgnoreCase("hotbook")) {
+            list = borrowTrendMapper.getHotBook(months, college, grade);
+        } else if (hotType.equalsIgnoreCase("url")) {
+            list = onlineStudyTrendMapper.getUrls(months, college, grade);
+        }
+
+        Map<String, AtomicInteger> NameMap = Maps.newHashMap();
+        Map<String, AtomicInteger> TypeMap = Maps.newHashMap();
+        buildMap(list, NameMap, TypeMap);
+
+        Map<String, BigDecimal> shortNameMap = sortMapByValue(NameMap);
+        Map<String, BigDecimal> shortTypeMap = sortMapByValue(TypeMap);
+
+        HashMap<String, Map<String, BigDecimal>> re = new HashMap<>();
+        re.put("hotName", shortNameMap);
+        re.put("hotType", shortTypeMap);
+        return re;
+    }
+
+    private String linkCounts(int last, int recent) {
         BigDecimal recentBig = new BigDecimal(recent);
         BigDecimal lastBig = new BigDecimal(last);
+        if (lastBig.compareTo(BigDecimal.ZERO) == 0) {
+            return "--";
+        }
         String linkCounts = recentBig.subtract(lastBig).divide(lastBig, 3, RoundingMode.HALF_UP).multiply(new BigDecimal(100)).setScale(1, RoundingMode.HALF_UP).toString();
-        return  linkCounts+"%";
+        return linkCounts + "%";
     }
 }

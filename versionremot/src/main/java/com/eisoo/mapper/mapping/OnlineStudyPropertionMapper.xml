@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.eisoo.mapper.SportPropertionMapper">
+<mapper namespace="com.eisoo.mapper.OnlineStudyPropertionMapper">
     <!-- 通用查询映射结果 -->
-    <resultMap id="BaseResultMap" type="com.eisoo.model.SportPropertion">
+    <resultMap id="BaseResultMap" type="com.eisoo.model.OnlineStudyPropertion">
         <result column="months" property="months" jdbcType="VARCHAR"/>
         <result column="college" property="college" jdbcType="VARCHAR"/>
         <result column="major" property="major" jdbcType="VARCHAR"/>
@@ -15,33 +15,21 @@
         <result column="nums" property="nums"/>
     </resultMap>
 
-    <select id="getHotSpot" resultType="int">
-        select sum(counts) from es_sport_propertion where months=#{months}
-        <if test="college != null">
-            and college = #{college}
-        </if>
-        <if test="grade != null">
-            and grade = #{grade}
-        </if>
-    </select>
-
     <select id="collegeCondition" resultMap="venue">
-        select college as name, sum(counts) as nums from es_sport_propertion
-        where months = #{months}
+        select college as name, sum(counts) nums from table_onlineStudy_propertion where months= #{months}
         <if test="grade != null">
             and grade = #{grade}
         </if>
-        group by college
+        group by college order by college desc
     </select>
 
     <select id="gradeCondition" resultMap="venue">
-        select grade as name, sum(counts) as nums from es_sport_propertion
-        where months = #{months}
-        <if test="college != null">
-            and college = #{college}
+        select grade as name, sum(counts) nums from table_onlineStudy_propertion where months= #{months}
+        <if test="grade != null">
+            and grade = #{grade}
         </if>
         group by grade order by grade desc
     </select>
 
-</mapper>
 
+</mapper>

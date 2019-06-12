@@ -16,7 +16,7 @@
         <result column="nums" property="nums"/>
     </resultMap>
 
-    <select id="groupCollege" resultMap="venue">
+    <select id="gradeCondition" resultMap="venue">
         select college name, sum(counts) nums from es_borrow_propertion
         where months = #{months}
         <if test="grade != null">
@@ -25,7 +25,7 @@
         group by college order by nums desc
     </select>
 
-    <select id="groupGrade" resultMap="venue">
+    <select id="collegeCondition" resultMap="venue">
         select grade name, sum(counts) nums from es_borrow_propertion
         where months = #{months}
         <if test="college != null">

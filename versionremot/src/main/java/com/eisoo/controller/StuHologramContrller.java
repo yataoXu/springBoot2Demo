@@ -72,7 +72,7 @@ public class StuHologramContrller {
             return resultDTO;
         }
 
-        if ("borrow".equals(baseSearchDTO.getType())) {
+        if ("borrow".equalsIgnoreCase(baseSearchDTO.getType())) {
 
             HashMap<String, Map<String, BigDecimal>> hotBook = stuHologramService.getHotBook(baseSearchDTO);
 
@@ -94,11 +94,11 @@ public class StuHologramContrller {
                 HashMap<String, Map<String, Integer>> portraitMap = new HashMap<String, Map<String, Integer>>();
                 portraitMap.put("student", portrait);
                 // 实际条件下的学院、年级计数
-                Map<String, Object> groupGradeOrCollegeCondition = stuHologramService.groupGradeOrCollegeCondition(baseSearchDTO);
+                Map<String, Object> groupGradeOrCollegeCondition = stuHologramService.borrowGroupGradeOrCollege(baseSearchDTO);
                 map.putAll(portraitMap);
                 map.putAll(groupGradeOrCollegeCondition);
             }
-        } else if ("study".equals(baseSearchDTO.getType())) {
+        } else if ("study".equalsIgnoreCase(baseSearchDTO.getType())) {
             if (baseSearchDTO.getPage() == 1) {
                 Map<String, Object> stringObjectMap = stuHologramService.extractStudy(baseSearchDTO);
                 map.putAll(stringObjectMap);
@@ -106,9 +106,13 @@ public class StuHologramContrller {
                 Map<String, Object> stringObjectMap = stuHologramService.extractStudyCondition(baseSearchDTO);
                 map.putAll(stringObjectMap);
             }
-        } else if ("onlineStudy".equals(baseSearchDTO.getType())) {
-            Map<String, Object> stringObjectMap = stuHologramService.extractOnlineStudy(baseSearchDTO);
-            map.putAll(stringObjectMap);
+        } else if ("onlineStudy".equalsIgnoreCase(baseSearchDTO.getType())) {
+            if (Integer.parseInt(baseSearchDTO.getMonths().substring(0,4))<= 2018){
+                Map<String, Object> stringObjectMap = stuHologramService.extractOnlineStudy(baseSearchDTO);
+                map.putAll(stringObjectMap);
+            }else{
+
+            }
         }
 
         resultDTO.setData(map);
@@ -146,19 +150,18 @@ public class StuHologramContrller {
                 resultDTO.setData(hotNew);
             } else {
 
-                Map<String, Integer> portrait = stuHologramService.getPortrait(baseSearchDTO);
-                Map<String, Object> college = stuHologramService.getCollege(baseSearchDTO);
-                Map<String, Object> grade = stuHologramService.getGrade(baseSearchDTO);
+                Map<String, Integer> portrait = stuHologramService.getBorrowPortrait(baseSearchDTO);
+
+
+                Map<String, Object> sportGroupGradeOrCollege = stuHologramService.sportGroupGradeOrCollege(baseSearchDTO);
                 Map<String, Object> dura = stuHologramService.getDura(baseSearchDTO);
-                if (grade.size() != 0 && grade != null) {
-                    college.putAll(grade);
-                }
+
                 if (dura.size() != 0 && dura != null) {
-                    college.putAll(dura);
+                    sportGroupGradeOrCollege.putAll(dura);
                 }
-                college.put("student", portrait);
+                sportGroupGradeOrCollege.put("student", portrait);
                 resultDTO.setCode(ResultDTO.SUCCESS_CODE);
-                resultDTO.setData(college);
+                resultDTO.setData(sportGroupGradeOrCollege);
 
             }
 
