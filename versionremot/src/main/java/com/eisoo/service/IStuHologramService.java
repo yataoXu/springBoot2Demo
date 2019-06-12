@@ -47,5 +47,9 @@ public interface IStuHologramService {
 
     public Map<String,Object> extractOnlineStudy(BaseSearchDTO baseSearchDTO);
 
+    public Map<String,Object> extractOnlineStudyMoreThan2018(BaseSearchDTO baseSearchDTO)
+
+
+
     public Map<String,Integer> getOnlineStudyPortrait(BaseSearchDTO baseSearchDTO);
 }

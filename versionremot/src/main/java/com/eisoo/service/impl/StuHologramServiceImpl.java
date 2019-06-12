@@ -6,8 +6,7 @@ import com.eisoo.common.constant.state.ESConstants;
 import com.eisoo.common.core.exception.BusinessException;
 import com.eisoo.common.util.ESDateUtils;
 import com.eisoo.mapper.*;
-import com.eisoo.model.Protrait;
-import com.eisoo.model.ValueDTO;
+import com.eisoo.model.*;
 import com.eisoo.service.IStuHologramService;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -50,6 +49,10 @@ public class StuHologramServiceImpl implements IStuHologramService {
     OnlineStudyPortraitMapper onlineStudyPortraitMapper;
     @Autowired
     OnlineStudyPropertionMapper onlineStudyPropertionMapper;
+    @Autowired
+    OnlinetrendMapper onlinetrendMapper;
+    @Autowired
+    OnlineStuMapper onlineStuMapper;
 
 
     /**
@@ -398,17 +401,20 @@ public class StuHologramServiceImpl implements IStuHologramService {
         List<ValueDTO> gradeCondition = Lists.newArrayList();
         List<ValueDTO> collegeCondition = Lists.newArrayList();
         if (param.equalsIgnoreCase("study")) {
-            gradeCondition = studyPropertionMapper.gradeCondition(baseSearchDTO.getMonths(), baseSearchDTO.getGrade());
+            gradeCondition = studyPropertionMapper.gradeCondition(baseSearchDTO.getMonths(), baseSearchDTO.getCollege());
             collegeCondition = studyPropertionMapper.collegeCondition(baseSearchDTO.getMonths(), baseSearchDTO.getGrade());
         } else if (param.equalsIgnoreCase("sport")) {
-            gradeCondition = sportPropertionMapper.gradeCondition(baseSearchDTO.getMonths(), baseSearchDTO.getGrade());
+            gradeCondition = sportPropertionMapper.gradeCondition(baseSearchDTO.getMonths(), baseSearchDTO.getCollege());
             collegeCondition = sportPropertionMapper.collegeCondition(baseSearchDTO.getMonths(), baseSearchDTO.getGrade());
         } else if (param.equalsIgnoreCase("onlineStudy")) {
-            gradeCondition = onlineStudyPropertionMapper.gradeCondition(baseSearchDTO.getMonths(), baseSearchDTO.getGrade());
+            gradeCondition = onlineStudyPropertionMapper.gradeCondition(baseSearchDTO.getMonths(), baseSearchDTO.getCollege());
             collegeCondition = onlineStudyPropertionMapper.collegeCondition(baseSearchDTO.getMonths(), baseSearchDTO.getGrade());
         } else if (param.equalsIgnoreCase("borrow")) {
-            gradeCondition = borrowPropertionMapper.gradeCondition(baseSearchDTO.getMonths(), baseSearchDTO.getGrade());
+            gradeCondition = borrowPropertionMapper.gradeCondition(baseSearchDTO.getMonths(), baseSearchDTO.getCollege());
             collegeCondition = borrowPropertionMapper.collegeCondition(baseSearchDTO.getMonths(), baseSearchDTO.getGrade());
+        }else if(param.equalsIgnoreCase("onlineStu")) {
+            gradeCondition = onlineStuMapper.gradeCondition(baseSearchDTO.getMonths(), baseSearchDTO.getCollege());
+            collegeCondition = onlineStuMapper.collegeCondition(baseSearchDTO.getMonths(), baseSearchDTO.getGrade());
         }
         Map<String, String> groupGradeConditionMap = listTomap(gradeCondition);
         Map<String, String> groupCollegeConditionMap = listTomap(collegeCondition);
@@ -503,6 +509,69 @@ public class StuHologramServiceImpl implements IStuHologramService {
 
         }
         return map;
+    }
+
+    @Override
+    public Map<String, Object> extractOnlineStudyMoreThan2018(BaseSearchDTO baseSearchDTO) {
+        if (baseSearchDTO.getPage() == 1) {
+            // 学习趋势
+            List<Onlinetrend> studyTrend = onlinetrendMapper.studyTrend(baseSearchDTO.getMonths(), baseSearchDTO.getCollege(),  baseSearchDTO.getGrade(), baseSearchDTO.getMajor());
+            // 学习热度
+            List<Onlinetrend> studyHot = onlinetrendMapper.studyHot(baseSearchDTO.getMonths(), baseSearchDTO.getCollege(),  baseSearchDTO.getGrade(), baseSearchDTO.getMajor());
+            // 学习环比
+
+            List<OnlineStu> thisMonthStudyPercent = onlineStuMapper.getStudyPercent(baseSearchDTO.getMonths(), baseSearchDTO.getCollege(),  baseSearchDTO.getGrade(), baseSearchDTO.getMajor());
+
+
+            int thisMonthStudySum = getMonthStudySum(thisMonthStudyPercent);
+
+
+            String lastMonth = ESDateUtils.formatLastMonth(baseSearchDTO.getMonths());
+            int lastMonthStudySum = 0;
+            if (Integer.parseInt(lastMonth.substring(0, 4)) >= 2019) {
+                List<OnlineStu> lastMonthStudyPercent = onlineStuMapper.getStudyPercent(baseSearchDTO.getMonths(), baseSearchDTO.getCollege(), baseSearchDTO.getGrade(), baseSearchDTO.getMajor());
+                 lastMonthStudySum = getMonthStudySum(lastMonthStudyPercent);
+            } else {
+                List<OnlineStudyPropertion> studyPropertions = onlineStudyPropertionMapper.getStudyPropertion(baseSearchDTO.getMonths(), baseSearchDTO.getCollege(), baseSearchDTO.getGrade(), baseSearchDTO.getMajor());
+                lastMonthStudySum = getMonthStudyOldSum(studyPropertions);
+            }
+
+            BigDecimal thisMonthStudyBig = new BigDecimal(thisMonthStudySum);
+            BigDecimal lastMonthStudyBig = new BigDecimal(lastMonthStudySum);
+            BigDecimal degree =thisMonthStudyBig.subtract(lastMonthStudyBig);
+
+            if (degree.compareTo(BigDecimal.ZERO)>=0){
+                String degreeStr = degree.multiply(new BigDecimal(100)).divide(lastMonthStudyBig, 3, RoundingMode.HALF_UP).toString();
+                String degreeStrPercent = degreeStr + "%";
+            }
+
+        } else if (baseSearchDTO.getPage() == 2) {
+            // sort grade and sort college
+            Map<String, Object> onlineStusort = sortgradeAndCollege("onlineStu", baseSearchDTO);
+
+            // 班级排序
+
+            return onlineStusort;
+        }
+
+            return null;
+    }
+
+    public int getMonthStudyOldSum(List<OnlineStudyPropertion> studyPropertion){
+        int monthStudySum = 0;
+        for (OnlineStudyPropertion onlineStu : studyPropertion) {
+            monthStudySum += onlineStu.getCounts();
+        }
+        return monthStudySum;
+    }
+
+
+    public int getMonthStudySum(List<OnlineStu> thisMonthStudyPercent){
+        int monthStudySum = 0;
+        for (OnlineStu onlineStu : thisMonthStudyPercent) {
+            monthStudySum += onlineStu.getStuNums();
+        }
+        return monthStudySum;
     }
 
     @Override

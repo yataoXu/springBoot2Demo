@@ -32,7 +32,8 @@
     </resultMap>
 
     <select id="getPortrait" resultMap="BaseResultMap">
-        select * from table_onlineStudy_portrait where months=#{months}
+        select * from table_onlineStudy_portrait
+        where months=#{months}
         <if test="college != null">
             and college = #{college}
         </if>

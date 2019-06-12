@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.eisoo.mapper.OnlineStudyPropertionMapper">
+<mapper namespace="com.eisoo.mapper.OnlinetrendMapper">
     <!-- 通用查询映射结果 -->
-    <resultMap id="BaseResultMap" type="com.eisoo.model.OnlineStudyPropertion">
-        <result column="months" property="months" jdbcType="VARCHAR"/>
+    <resultMap id="BaseResultMap" type="com.eisoo.model.Onlinetrend">
+        <result column="days" property="days" jdbcType="VARCHAR"/>
         <result column="college" property="college" jdbcType="VARCHAR"/>
         <result column="major" property="major" jdbcType="VARCHAR"/>
         <result column="grade" property="grade" jdbcType="VARCHAR"/>
-        <result column="counts" property="counts" jdbcType="DECIMAL"/>
+        <result column="stu_nums" property="stuNums"/>
     </resultMap>
 
     <resultMap id="venue" type="com.eisoo.model.ValueDTO">
@@ -15,31 +15,28 @@
         <result column="nums" property="nums"/>
     </resultMap>
 
-    <select id="collegeCondition" resultMap="venue">
-        select college as name, sum(counts) nums from table_onlineStudy_propertion where months= #{months}
-        <if test="grade != null">
-            and grade = #{grade}
-        </if>
-        group by college order by college desc
-    </select>
-
-    <select id="gradeCondition" resultMap="venue">
-        select grade as name, sum(counts) nums from table_onlineStudy_propertion
-        where months= #{months}
+    <select id="studyTrend" resultMap="BaseResultMap">
+        SELECT substr(days,6,5) days, college,grade,major, stu_nums
+        FROM table_online_trend
+        where days like CONCAT(#{months},'%')
         <if test="college != null">
             and college = #{college}
         </if>
-        group by grade order by grade desc
+        <if test="grade != null">
+            and grade = #{grade}
+        </if>
+        <if test="major != null">
+            and major = #{major}
+        </if>
     </select>
-
-    <select id="getStudyPropertion" resultMap="BaseResultMap">
-        SELECT * FROM table_onlineStudy_propertion
+    <select id="studyHot" resultMap="BaseResultMap">
+        SELECT * FROM table_online_stu
         WHERE months=#{months}
-        <if test="grade != null">
-            and grade = #{grade}
-        </if>
         <if test="college != null">
             and college = #{college}
+        </if>
+        <if test="grade != null">
+            and grade = #{grade}
         </if>
         <if test="major != null">
             and major = #{major}
